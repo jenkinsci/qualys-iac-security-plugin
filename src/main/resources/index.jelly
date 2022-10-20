@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+  This plugin is a scan which illustrates the vulneribilities and remedies of the Image.
+</div>

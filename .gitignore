@@ -1,0 +1,10 @@
+/target/
+/work/
+/.settings/
+/*.zip
+/*.txt
+/nbactions.xml
+/nb-configuration.xml
+/pom.xml.versionsBackup
+/.project
+/.classpath

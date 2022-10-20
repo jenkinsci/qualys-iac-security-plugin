@@ -1,0 +1,36 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <script src="${resURL}/plugin/qualys-iac-scan/js/common.js?v=${descriptor.getUUID()}"></script>
+    <div id="qualys-configuration-body" onmouseover="setPageStateValue()">
+        <f:section title="Qualys IaC Scan">
+            <div id="add-qualys-configuration">
+                <f:repeatable var="inst" items="${instance.qualysApiConfigurations}" add="Add">
+                        <input type="hidden" class="isPageLoad" name="_.isPageLoad" value="true"/>
+                        <f:entry field="name" title="Name" class="required">
+                            <f:textbox  checkMethod="post" value="${inst.name}" onmouseover="triggerValidation(event)"/>
+                        </f:entry>
+                        <f:entry field="qualysPlatformURL" title="Qualys Platform URL" class="required">
+                            <f:textbox checkMethod="post" value="${inst.qualysPlatformURL}" onmouseover="triggerValidation(event)"/>
+                        </f:entry>
+
+                        <f:entry field="qualysUserName" title="Qualys Username" class="required">
+                            <f:textbox checkMethod="post" value="${inst.qualysUserName}" onmouseover="triggerValidation(event)"/>
+                        </f:entry>
+
+                        <f:entry field="qualysPassword" title="Qualys Password" class="required">
+                            <f:password checkMethod="post" value="${inst.qualysPassword}" onmouseover="triggerValidation(event)"/>
+                        </f:entry>
+                        <f:validateButton
+                            title="Test Connection" progress="Testing..."
+                            method="testConnection" with="qualysPlatformURL,qualysUserName,qualysPassword"/>
+                        <f:entry title="">
+                            <div align="right">
+                                <f:repeatableDeleteButton value="Delete" />
+                            </div>
+                        </f:entry>
+                </f:repeatable>
+            </div>
+            <br/>
+        </f:section>
+    </div>
+</j:jelly>

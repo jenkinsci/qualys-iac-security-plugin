@@ -1,0 +1,57 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" 
+         xmlns:d="jelly:define" xmlns:l="/lib/layout" 
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+         xmlns:s="/lib/samples">
+    <f:block>
+        <script src="${resURL}/plugin/qualys-iac-scan/js/common.js?v=${descriptor.getUUID()}"></script>
+        <div id="qualys-configuration-body" onmouseover="setPageStateValue()">
+            <div style="width:100%" class="qualys-iac-body">
+                <input type="hidden" name="_.isPageLoad" id="isPageLoad" class="isPageLoad" value="true"/>
+                <input type="hidden" name="_.jobName" id="jobName" value="${it.getDisplayName()}"/>
+                <j:set var="IaCServiceEndpoints" value="${descriptor.getIaCServiceEndpoints()}"/>
+                <f:entry field="IaCServiceEndpoint"  title="IaC Scan service/server endpoint" class="required">
+                    <select id="selectIaCServiceEndpoint" onchange="checkIaCEndPointSelected()" style="width:100%;height:40px" name="IaCServiceEndpoint">
+                        <option value="-1">-- Select IaC Scan service/server endpoint --</option>
+                        <j:forEach var="ise" items="${IaCServiceEndpoints}">
+                            <option value="${ise.name}" selected="${ise.name.equals(instance.IaCServiceEndpoint) ? 'true' : null}">${ise.name}
+                            </option>
+                        </j:forEach>
+                    </select>
+                </f:entry>
+            </div>
+            <f:block name="buildFailureConditions" title="Launch Scan API Parameters">
+                <f:entry title="Scan Name" field="scanName">
+                    <f:textbox placeholder="jenkins_$(username)_$(timestamp)" value="${scanName}" onmouseover="triggerValidation(event)" id="scanName"/>
+                </f:entry>
+                <f:entry title="Compressed File path/Directory to be scanned" field="scanDirectories" class="required">
+                    <span style="font-weight:600">Note: Qualys IaC Scan will only recognize files with the extensions .yml,.yaml,.json, .tf, .template for scans. Other files in the directory will be ignored.</span>
+                    <p></p>
+                    <f:textbox value="${scanDirectories}" onmouseover="triggerValidation(event)" id="scanDirectories"/>
+                </f:entry>
+            </f:block>
+            <f:entry title="Failed results only" field="isFailedResultsOnly">
+                <f:checkbox checked="${instance.getFailedResultsOnly()}"/>
+            </f:entry>
+            <f:optionalBlock name="buildFailureSettings" field="buildFailureSettings" checked="${buildFailureSettings}" title="Build Failure Conditions" inline="true">
+                <f:entry title="Fail if the count of 'High' failed controls is more than" field="high">
+                    <f:textbox default="0" value="${high}" onmouseover="triggerValidation(event)" id="buildFailureHigh"/>
+                </f:entry>
+                <f:entry title="Fail if the count of 'Medium' failed controls is more than" field="medium">
+                    <f:textbox default="0" value="${medium}" onmouseover="triggerValidation(event)" id="buildFailureMedium"/>
+                </f:entry>
+                <f:entry title="Fail if the count of 'Low' failed controls is more than" field="low">
+                    <f:textbox default="0" value="${low}" onmouseover="triggerValidation(event)" id="buildFailureLow"/>
+                </f:entry>
+            </f:optionalBlock>
+            <f:optionalBlock name="timeoutSettings" field="timeoutSettings" title="Timeout settings" checked="${timeoutSettings}" inline="true">
+                <f:entry title="How often to check for data(in Second)" field="scanResultInterval">
+                    <f:textbox default="30" value="${scanResultInterval}" onmouseover="triggerValidation(event)" id="scanResultInterval"/>
+                </f:entry>
+                <f:entry title="How long to wait for scan results(in minutes)" field="totalJobCompletionTime">
+                    <f:textbox  default="10" value="${totalJobCompletionTime}" onmouseover="triggerValidation(event)" id="totalJobCompletionTime"/>
+                </f:entry>
+            </f:optionalBlock>
+        </div>
+    </f:block>
+</j:jelly>
