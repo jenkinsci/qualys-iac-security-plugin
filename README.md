@@ -74,23 +74,21 @@ To deploy a plugin,
 
  
 
-Dashboard > Manage enkins
+Dashboard > Manage jenkins
 ## Screenshots
 
 
 [![App Screenshot-1](images/Image1.PNG)](images/Image1.PNG)
 
 
-2. On the plugin manager, go to Deploy Plugin
 ## Screenshots
 
-[![App Screenshot-2](images/Image2.PNG)](images/Image2.PNG)
 
-3. Select the hpi file from your local machine and click Deploy.
-4. Navigate to Installed in the plugin manager to view the deployed IaC plugin
+2. After opening manage jenkins page, search in input box with Qualys IaC Security and Install that plugin
+3. Navigate to Installed in the plugin manager to view the install Qualys IaC Security plugin
 ## Screenshots
 
-[![App Screenshot-3](images/Image3.PNG)](images/Image3.PNG)
+[![App Screenshot-3](images/jenkins-plugin-site.jpg)](images/jenkins-plugin-site.jpg)
 
 ## Configure System
 1. On the Jenkins console, go to Manage Jenkins > Configure System
