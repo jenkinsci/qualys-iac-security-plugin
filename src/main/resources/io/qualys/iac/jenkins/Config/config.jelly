@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <script src="${resURL}/plugin/qualys-iac-scan/js/common.js?v=${descriptor.getUUID()}"></script>
+    <script src="${resURL}/plugin/qualys-iac-security/js/common.js?v=${descriptor.getUUID()}"></script>
     <div id="qualys-configuration-body" onmouseover="setPageStateValue()">
         <f:section title="Qualys IaC Scan">
             <div id="add-qualys-configuration">

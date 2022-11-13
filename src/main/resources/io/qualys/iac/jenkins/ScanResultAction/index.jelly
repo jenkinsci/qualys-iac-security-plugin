@@ -9,11 +9,11 @@
                 <input type="hidden" id="jsonScanResult" name="jsonScanResult" value="${it.getScanResult()}"/>
                 <html>
                     <head>
-                        <script type="text/javascript" src="${resURL}/plugin/qualys-iac-scan/js/loader.js"></script>
-                        <link href="${resURL}/plugin/qualys-iac-scan/css/bootstrap.min.css" rel="stylesheet"/>
-                        <script src="${resURL}/plugin/qualys-iac-scan/js/bootstrap.bundle.min.js"></script>
-                        <script src="${resURL}/plugin/qualys-iac-scan/js/jquery.min.js"></script>
-                        <script src="${resURL}/plugin/qualys-iac-scan/js/report.js?v=1"></script>
+                        <script type="text/javascript" src="${resURL}/plugin/qualys-iac-security/js/loader.js"></script>
+                        <link href="${resURL}/plugin/qualys-iac-security/css/bootstrap.min.css" rel="stylesheet"/>
+                        <script src="${resURL}/plugin/qualys-iac-security/js/bootstrap.bundle.min.js"></script>
+                        <script src="${resURL}/plugin/qualys-iac-security/js/jquery.min.js"></script>
+                        <script src="${resURL}/plugin/qualys-iac-security/js/report.js?v=1"></script>
                         <script type="text/css">
                             .hide{
                                 display:none !important;
@@ -99,8 +99,8 @@
                                                             </tbody>
                                                         </table>
                                                         <div class="text-end mt-2">
-                                                            <img width="24" height="24" src="${resURL}/plugin/qualys-iac-scan/icons/cancel-icon.png"/> Violates criteria
-                                                            <img width="24" height="24" src="${resURL}/plugin/qualys-iac-scan/icons/correct.png"/> Satisfies criteria
+                                                            <img width="24" height="24" src="${resURL}/plugin/qualys-iac-security/icons/cancel-icon.png"/> Violates criteria
+                                                            <img width="24" height="24" src="${resURL}/plugin/qualys-iac-security/icons/correct.png"/> Satisfies criteria
                                                             <b>--</b> Not configured
                                                         </div>
                                                     </div>

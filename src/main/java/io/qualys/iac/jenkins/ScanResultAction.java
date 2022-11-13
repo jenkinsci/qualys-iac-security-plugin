@@ -37,7 +37,7 @@ public class ScanResultAction implements RunAction2 {
 
     @Override
     public String getIconFileName() {
-        return "/plugin/qualys-iac-scan/icons/qualyscloud-48x48.png";
+        return "/plugin/qualys-iac-security/icons/qualyscloud-48x48.png";
     }
 
     @Override

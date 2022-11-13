@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <groupId>io.jenkins.plugins</groupId>
-    <artifactId>qualys-iac-scan</artifactId>
+    <artifactId>qualys-iac-security</artifactId>
     <version>0.0.7</version>
     <packaging>hpi</packaging>
     <name>Qualys IaC Security</name>
@@ -29,6 +29,9 @@
         </dependencies>
     </dependencyManagement>
     <properties>
+        <license.licenseName>Qualys_License</license.licenseName>
+        <license.licenseResolver>${project.baseUri}/LICENSE</license.licenseResolver>
+
         <jenkins.version>2.358</jenkins.version>
         <java.level>11</java.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -97,8 +97,8 @@ $(document).ready(function () {
 
         if (jsr.appliedBuildSetting && jsr.lstterraFormChecks && jsr.lstterraFormChecks.length > 0) {
             var resURL = $('#resURL').val();
-            var cancel_icon = '<img height="24" width="24" src="' + resURL + '/plugin/qualys-iac-scan/icons/cancel-icon.png"/>';
-            var correct_icon = '<img height="24" width="24" src="' + resURL + '/plugin/qualys-iac-scan/icons/correct.png"/>';
+            var cancel_icon = '<img height="24" width="24" src="' + resURL + '/plugin/qualys-iac-security/icons/cancel-icon.png"/>';
+            var correct_icon = '<img height="24" width="24" src="' + resURL + '/plugin/qualys-iac-security/icons/correct.png"/>';
             if (jsr.summary.highViolatesCriteria) {
                 $('.high-criteria-icon').html(cancel_icon);
             } else {

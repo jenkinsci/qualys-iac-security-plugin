@@ -4,7 +4,7 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form"
          xmlns:s="/lib/samples">
     <f:block>
-        <script src="${resURL}/plugin/qualys-iac-scan/js/common.js?v=${descriptor.getUUID()}"></script>
+        <script src="${resURL}/plugin/qualys-iac-security/js/common.js?v=${descriptor.getUUID()}"></script>
         <div id="qualys-configuration-body">
             <div style="width:100%" class="qualys-iac-body">
                 <input type="hidden" name="_.isPageLoad" id="isPageLoad" class="isPageLoad" value="true"/>
