@@ -29,9 +29,6 @@
         </dependencies>
     </dependencyManagement>
     <properties>
-        <license.licenseName>Qualys_License</license.licenseName>
-        <license.licenseResolver>${project.baseUri}/LICENSE</license.licenseResolver>
-
         <jenkins.version>2.358</jenkins.version>
         <java.level>11</java.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -99,6 +96,12 @@
             </plugin>
         </plugins>
     </build>
+    <licenses>
+        <license>
+          <name>GNU General Public License v3.0</name>
+          <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+        </license>
+    </licenses>
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
