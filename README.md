@@ -19,7 +19,7 @@ your cloud environments. The IaC Security feature will help you shift cloud secu
 compliance posture to the left, allowing evaluation of cloud resources for misconfigura-
 tions much early during the development phase.
 
-GloudView offers integration with Jenkins to scan and secure your IaC templates using the
+CloudView offers integration with Jenkins to scan and secure your IaC templates using the
 Jenkins pipeline job. It continuously verifies security misconfigurations against CloudView
 controls and displays the misconfigurations for each run. With a continuous visibility of
 the security posture of your laG Templates at Jenkins pipeline you can plan for remedia-
@@ -29,7 +29,7 @@ For supported templates, other integrations, and features of Cloud laC Security,
 CloudView User Guide and CloudView API User Guide.
 
 Copyright 2022 by Qualys, Inc. All Rights Reserved.
-Qualys laC Security Integration with Jenkins
+Qualys laC Security Integration with Jenkins
 Scanning laC Templates at Jenkins
 
 
@@ -95,7 +95,7 @@ Dashboard > Manage jenkins
 ## Screenshots
 
 [![App Screenshot-4](images/Image4.PNG)](images/Image4.PNG)
-2. . Scroll down till you see the Qualys IaC Scan plugin and click Add.
+2. Scroll down till you see the Qualys IaC Scan plugin and click Add.
 ## Screenshots
 
 [![App Screenshot-5](images/Image5.PNG)](images/Image5.PNG)
