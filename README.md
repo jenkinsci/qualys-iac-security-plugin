@@ -64,7 +64,7 @@ Configure the Plugin
 Gonfigure Git Repositories
 Configure Pipeline Job
 ##  View Scan Output
-Qualys laC Security Integration with Jenkins
+Qualys laC Security Integration with Jenkins
 Scanning lac Templates at Jenkins
 ##  Configure the Plugin
 efore running a scan, we have to install the IaC plugin on your Jenkins console.
