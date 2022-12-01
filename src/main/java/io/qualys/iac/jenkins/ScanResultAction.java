@@ -3,7 +3,7 @@ package io.qualys.iac.jenkins;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.qualys.iac.commons.model.ScanResult;
+import io.qualys.iac.commons.model.ScanResult;
 import hudson.model.TaskListener;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Run;
@@ -62,5 +62,9 @@ public class ScanResultAction implements RunAction2 {
 
     public Run getRun() {
         return run;
+    }
+
+    public String getUUID() {
+        return java.util.UUID.randomUUID().toString();
     }
 }

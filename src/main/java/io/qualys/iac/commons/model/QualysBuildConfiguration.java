@@ -1,5 +1,6 @@
-package com.qualys.iac.commons.model;
+package io.qualys.iac.commons.model;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -61,7 +62,7 @@ public class QualysBuildConfiguration {
     }
 
     public String getBasicAuthToken() {
-        return "Basic " + Base64.getEncoder().encodeToString((this.userName + ":" + this.password).getBytes());
+        return "Basic " + Base64.getEncoder().encodeToString((this.userName + ":" + this.password).getBytes(Charset.forName("UTF-8")));
     }
 
     public String getPostScanURL() {

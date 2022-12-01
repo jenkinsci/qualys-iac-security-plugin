@@ -1,4 +1,4 @@
-package com.qualys.iac.commons.model;
+package io.qualys.iac.commons.model;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -22,14 +22,13 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * This is class provides functions related to extract zip and zip folder. It
  * contains common methods regarding adding headers to http request
- *
  */
 public final class Util {
 
@@ -67,17 +66,17 @@ public final class Util {
     public String getTempDirectory() {
         return System.getProperty("java.io.tmpdir");
     }
-
+    public String appendTimestampToFile(String fileName, String extension) {
+        return fileName.concat("_").concat(Instant.now().getEpochSecond() + "").concat(extension);
+    }
     public String getRandomZipPath() {
         String uuid = UUID.randomUUID().toString();
         return util.concatPath(getTempDirectory(), uuid);
     }
 
-    public String appendTimestampToFile(String fileName, String extension) {
-        return fileName.concat("_").concat(Instant.now().getEpochSecond() + "").concat(extension);
-    }
-
     public void extractFolder(String zipFile, String extractFolder) {
+        //String extractFolderPath = util.getRandomZipPath()
+        //extractFolder have unique file path e.g %temp%/{GUID}/ in windows and in linux like /tmp/{GUID}/ so zip slip will not occur
         try {
             int BUFFER = 2048;
             File file = new File(zipFile);
@@ -85,41 +84,42 @@ public final class Util {
             ZipFile zip = new ZipFile(file);
             String newPath = extractFolder;
 
-            new File(newPath).mkdir();
-            Enumeration zipFileEntries = zip.entries();
+            boolean isFolderDirectoryCreated = new File(newPath).mkdir();
+            if (isFolderDirectoryCreated) {
+                Enumeration zipFileEntries = zip.entries();
 
-            // Process each entry
-            while (zipFileEntries.hasMoreElements()) {
-                // grab a zip file entry
-                ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
-                String currentEntry = entry.getName();
+                // Process each entry
+                while (zipFileEntries.hasMoreElements()) {
+                    // grab a zip file entry
+                    ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+                    String currentEntry = entry.getName();
 
-                File destFile = new File(newPath, currentEntry);
-                //destFile = new File(newPath, destFile.getName());
-                File destinationParent = destFile.getParentFile();
+                    File destFile = new File(newPath, currentEntry);
+                    //destFile = new File(newPath, destFile.getName());
+                    File destinationParent = destFile.getParentFile();
 
-                // create the parent directory structure if needed
-                destinationParent.mkdirs();
+                    // create the parent directory structure if needed
+                    boolean isDestinationParentCreated = destinationParent.mkdirs();
+                    if (isDestinationParentCreated && !entry.isDirectory()) {
+                        try (BufferedInputStream is = new BufferedInputStream(zip
+                                .getInputStream(entry))) {
+                            int currentByte;
+                            // establish buffer for writing file
+                            byte data[] = new byte[BUFFER];
 
-                if (!entry.isDirectory()) {
-                    try ( BufferedInputStream is = new BufferedInputStream(zip
-                            .getInputStream(entry))) {
-                        int currentByte;
-                        // establish buffer for writing file
-                        byte data[] = new byte[BUFFER];
+                            // write the current file to disk
+                            FileOutputStream fos = new FileOutputStream(destFile);
+                            BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
 
-                        // write the current file to disk
-                        FileOutputStream fos = new FileOutputStream(destFile);
-                        BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
-
-                        // read and write until last byte is encountered
-                        while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
-                            dest.write(data, 0, currentByte);
+                            // read and write until last byte is encountered
+                            while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
+                                dest.write(data, 0, currentByte);
+                            }
+                            dest.flush();
+                            dest.close();
+                            fos.close();
+                            is.close();
                         }
-                        dest.flush();
-                        dest.close();
-                        fos.close();
-                        is.close();
                     }
                 }
             }
@@ -158,16 +158,18 @@ public final class Util {
 
     public void addFolderToZip(File folder, ZipOutputStream zout, String basePath, Set<String> lstEntries, List<String> lstfiles) throws IOException {
         File[] files = folder.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                String path = util.concatPath(basePath.concat(file.getName()), EMPTY_BASE_PATH);
-                path = getRenamedPath(path, basePath, file, lstEntries);
-                lstEntries.add(path);
-                zout.putNextEntry(new ZipEntry(path));
-                addFolderToZip(file, zout, path, lstEntries, lstfiles);
-                zout.closeEntry();
-            } else {
-                addFileToZip(file, zout, basePath, lstEntries, lstfiles);
+        if(files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    String path = util.concatPath(basePath.concat(file.getName()), EMPTY_BASE_PATH);
+                    path = getRenamedPath(path, basePath, file, lstEntries);
+                    lstEntries.add(path);
+                    zout.putNextEntry(new ZipEntry(path));
+                    addFolderToZip(file, zout, path, lstEntries, lstfiles);
+                    zout.closeEntry();
+                } else {
+                    addFileToZip(file, zout, basePath, lstEntries, lstfiles);
+                }
             }
         }
     }

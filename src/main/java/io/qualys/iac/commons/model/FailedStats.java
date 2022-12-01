@@ -1,4 +1,4 @@
-package com.qualys.iac.commons.model;
+package io.qualys.iac.commons.model;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

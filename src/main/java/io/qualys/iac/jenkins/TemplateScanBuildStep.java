@@ -1,9 +1,9 @@
 package io.qualys.iac.jenkins;
 
-import com.qualys.iac.commons.model.QualysConstants;
-import com.qualys.iac.commons.model.Util;
-import com.qualys.iac.plugins.validation.UIJenkinsValidation;
-import com.qualys.iac.plugins.validation.UIValidation;
+import io.qualys.iac.commons.model.QualysConstants;
+import io.qualys.iac.commons.model.Util;
+import io.qualys.iac.validation.UIJenkinsValidation;
+import io.qualys.iac.validation.UIValidation;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -14,11 +14,13 @@ import hudson.model.TaskListener;
 import hudson.util.FormValidation;
 import io.qualys.iac.commons.JenkinsUtil;
 import io.qualys.iac.jenkins.dto.QualysApiConfiguration;
+
 import java.io.File;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nonnull;
+
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import lombok.Getter;
@@ -125,7 +127,7 @@ public class TemplateScanBuildStep extends Step {
         } else {
             this.totalJobCompletionTime = QualysConstants.DEFAULT_JOB_COMPLETION_TIME;
         }
-        this.jobName= jobName;
+        this.jobName = jobName;
     }
 
     public TemplateScanBuildStep() {
@@ -150,16 +152,16 @@ public class TemplateScanBuildStep extends Step {
     public TemplateScanBuildStep.DescriptorImpl getDescriptor() {
         return (TemplateScanBuildStep.DescriptorImpl) super.getDescriptor();
     }
-
     public QualysApiConfiguration getSelectedIaCServiceEndpoint() {
-        for (QualysApiConfiguration qac : getDescriptor().getIaCServiceEndpoints()) {
-            if (getIaCServiceEndpoint() != null && getIaCServiceEndpoint().equals(qac.getName())) {
-                return qac;
+        QualysApiConfiguration[] qualysApiConfigurations = getDescriptor().getIaCServiceEndpoints();
+        if (qualysApiConfigurations != null && qualysApiConfigurations.length > 0) {
+            for (QualysApiConfiguration qac : qualysApiConfigurations) {
+                if (getIaCServiceEndpoint() != null && getIaCServiceEndpoint().equals(qac.getName())) {
+                    return qac;
+                }
             }
-        }
-        // If no installation match then take the first one
-        if (getDescriptor().getIaCServiceEndpoints().length > 0) {
-            return getDescriptor().getIaCServiceEndpoints()[0];
+            // If no installation match then take the first one
+            return qualysApiConfigurations[0];
         }
         return null;
     }
@@ -182,12 +184,15 @@ public class TemplateScanBuildStep extends Step {
             return "Qualys IaC Scan";
         }
 
-        public String getUUID() {
-            return java.util.UUID.randomUUID().toString();
-        }
-
         public QualysApiConfiguration[] getIaCServiceEndpoints() {
-            return GlobalConfiguration.all().get(Config.class).getQualysApiConfigurations();
+            if (GlobalConfiguration.all() != null) {
+                Config config = GlobalConfiguration.all().get(Config.class);
+                if (config != null) {
+                    return config.getQualysApiConfigurations();
+                }
+            }
+            QualysApiConfiguration[] qualysApiConfigurations = new QualysApiConfiguration[QualysConstants.DEFAULT_LENGTH];
+            return qualysApiConfigurations;
         }
 
         public FormValidation doCheckIaCServiceEndpoint(@QueryParameter String IaCServiceEndpoint, @QueryParameter String isPageLoad) {
@@ -236,7 +241,7 @@ public class TemplateScanBuildStep extends Step {
     public static final class IaCScanBuildExecution extends StepExecution {
 
         private static final long serialVersionUID = 1L;
-        private final TemplateScanBuilder templateScanBuilder;
+        private final transient TemplateScanBuilder templateScanBuilder;
 
         private IaCScanBuildExecution(StepContext sc, TemplateScanBuilder templateScanBuilder) {
             super(sc);

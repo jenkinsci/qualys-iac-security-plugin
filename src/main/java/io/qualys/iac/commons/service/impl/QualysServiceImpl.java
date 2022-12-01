@@ -1,7 +1,7 @@
-package com.qualys.iac.commons.service.impl;
+package io.qualys.iac.commons.service.impl;
 
-import com.qualys.iac.commons.model.*;
-import com.qualys.iac.commons.service.IQualysService;
+import io.qualys.iac.commons.model.*;
+import io.qualys.iac.commons.service.IQualysService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -25,8 +25,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static com.qualys.iac.commons.model.QualysConstants.CONNECTION_TIMEOUT;
-import static com.qualys.iac.commons.model.QualysConstants.ZIP_EXTENSION;
+import static io.qualys.iac.commons.model.QualysConstants.CONNECTION_TIMEOUT;
+import static io.qualys.iac.commons.model.QualysConstants.ZIP_EXTENSION;
 
 public class QualysServiceImpl implements IQualysService {
 
@@ -61,7 +61,6 @@ public class QualysServiceImpl implements IQualysService {
         Map<String, Object> map = new HashMap<>();
         List<String> lstDirs = qbc.getFormattedDirectories();
         List<Path> lstPaths = new ArrayList<>();
-        List<String> lstExtractedFolders = new ArrayList<>();
         Set<String> lstEntries = new HashSet<>();
         List<String> lstfiles = new ArrayList<>();
         try {
@@ -70,10 +69,11 @@ public class QualysServiceImpl implements IQualysService {
                 if (isValidPath(folderPath)) {
                     if (folderPath.endsWith(ZIP_EXTENSION)) {
                         String extractFolderPath = util.getRandomZipPath();
-                        new File(extractFolderPath).mkdirs();
-                        lstExtractedFolders.add(extractFolderPath);
-                        util.extractFolder(folderPath, extractFolderPath);
-                        lstPaths.add(Paths.get(extractFolderPath));
+                        boolean isFolderPathCreated = new File(extractFolderPath).mkdirs();
+                        if(isFolderPathCreated) {
+                            util.extractFolder(folderPath, extractFolderPath);
+                            lstPaths.add(Paths.get(extractFolderPath));
+                        }
                     } else {
                         lstPaths.add(Paths.get(new File(folderPath).getCanonicalPath()));
                     }

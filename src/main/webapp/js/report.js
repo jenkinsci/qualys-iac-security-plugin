@@ -1,5 +1,4 @@
 var jsr = JSON.parse(document.getElementById('jsonScanResult').value);
-
 function drawChart() {
     var data = google.visualization.arrayToDataTable([
         ['Severity', 'Count'],
@@ -30,89 +29,93 @@ function drawChart() {
 
     chart.draw(data, options);
 }
-$(document).ready(function () {
+function createColElement(colData){
+    var rowElement = document.createElement("tr");
+    for(var i = 0; i < colData.length;i++){
+        var colElement = document.createElement("td");
+        colElement.innerHTML=colData[i];
+        rowElement.appendChild(colElement);
+    }
+    return rowElement;
+}
+jQuery(document).ready(function () {
     if (jsr && jsr.summary.failedStats && !(jsr.summary.failedStats.high === 0 && jsr.summary.failedStats.medium === 0 && jsr.summary.failedStats.low === 0)) {
         google.charts.load('current', {
             'packages': ['corechart']
         });
         google.charts.setOnLoadCallback(drawChart);
-        $('#qualysIaCScanPieChart').removeClass('d-none');
-        $('.pie-chart-col').removeClass('d-none');
+        jQuery('#qualysIaCScanPieChart').removeClass('d-none');
+        jQuery('.pie-chart-col').removeClass('d-none');
     } else {
-        $('.no-data-qualys-iac-pie-chart').removeClass('d-none');
+        jQuery('.no-data-qualys-iac-pie-chart').removeClass('d-none');
     }
-
     tmp = '';
-    $.each(jsr.lstterraFormChecks, function (i, item) {
+
+    jQuery.each(jsr.lstterraFormChecks, function (i, item) {
         var controlId = item.controlId;
         var controlName = item.controlName;
         var criticality = item.criticality;
         var filePath = item.filePath ? item.filePath : '';
         var resource = item.resource;
         var resultType = item.resultType === 'FAILED' ? '<span class="text-danger fw-bold">FAILED</span>' : '<span class="text-success fw-bold">PASSED</span>';
-        tmp = tmp + "<tr><td class='col-1'>" + controlId + "</td><td>" + controlName + "</td><td>" + criticality + "</td><td>" + resultType + "</td><td>" + filePath + "</td><td> " + resource + " </td></tr>";
+        jQuery('.iac-posture-rows').append(createColElement([controlId, controlName, criticality, resultType, filePath, resource]));
     });
-    if (tmp.trim().length > 0) {
-        $('.iac-posture-rows').append(tmp);
-    }
-    tmp = '';
-    $.each(jsr.lstremediation, function (i, item) {
+
+    jQuery.each(jsr.lstremediation, function (i, item) {
         var controlId = item.controlId;
         var remediation = item.remediation;
-        tmp = tmp + "<tr><td class='col-1'>" + controlId + "</td><td>" + remediation + "</td></tr>";
+        jQuery('.iac-remediation-rows').append(createColElement([controlId, remediation]));
     });
-    if (tmp.trim().length > 0) {
-        $('.iac-remediation-rows').append(tmp);
-    }
+
     if (!jsr.lstterraFormChecks || jsr.lstterraFormChecks.length === 0) {
-        $('.iacposture-tab').addClass('d-none');
-        $('.no-data-iacposture-tab').removeClass('d-none');
+        jQuery('.iacposture-tab').addClass('d-none');
+        jQuery('.no-data-iacposture-tab').removeClass('d-none');
     }
 
     if (!jsr.lstremediation || jsr.lstremediation.length === 0) {
-        $('.remediation-tab').addClass('d-none');
-        $('.no-data-remediation-tab').removeClass('d-none');
+        jQuery('.remediation-tab').addClass('d-none');
+        jQuery('.no-data-remediation-tab').removeClass('d-none');
     }
 
     tmp = '';
-    $.each(jsr.lstParsingErrors, function (i, item) {
+    jQuery.each(jsr.lstParsingErrors, function (i, item) {
         var checkType = item.checkType;
         var parsingErrorLocation = item.parsingErrorLocation;
-        tmp = tmp + "<tr><td class='col-1'>" + checkType + "</td><td>" + parsingErrorLocation + "</td></tr>";
+        jQuery('.iac-remediation-rows').append(createColElement([checkType, parsingErrorLocation]));
     });
     if (tmp.trim().length > 0) {
-        $('.parsing-error-rows').append(tmp);
-        $('.parsing-error-tab').removeClass('d-none');
+        jQuery('.parsing-error-rows').append(tmp);
+        jQuery('.parsing-error-tab').removeClass('d-none');
     }
     if (!jsr.lstParsingErrors || jsr.lstParsingErrors.length === 0) {
-        $('.parsing-error-tab').addClass('d-none');
+        jQuery('.parsing-error-tab').addClass('d-none');
     }
     if (jsr.summary) {
-        $('#scan-id').text(jsr.scanId);
-        $('#scan-name').text(jsr.scanName);
-        $('#scan-status').text(jsr.scanStatus);
-        $('.scan-info-row').removeClass('d-none');
-        $('#total-build-failure-control-count').text(jsr.summary.totalBuildFailureControlCount);
-        $('#out-of-build-failure-control-count').text(' of ' + jsr.summary.failed);
+        jQuery('#scan-id').text(jsr.scanId);
+        jQuery('#scan-name').text(jsr.scanName);
+        jQuery('#scan-status').text(jsr.scanStatus);
+        jQuery('.scan-info-row').removeClass('d-none');
+        jQuery('#total-build-failure-control-count').text(jsr.summary.totalBuildFailureControlCount);
+        jQuery('#out-of-build-failure-control-count').text(' of ' + jsr.summary.failed);
 
         if (jsr.appliedBuildSetting && jsr.lstterraFormChecks && jsr.lstterraFormChecks.length > 0) {
-            var resURL = $('#resURL').val();
-            var cancel_icon = '<img height="24" width="24" src="' + resURL + '/plugin/qualys-iac-security/icons/cancel-icon.png"/>';
-            var correct_icon = '<img height="24" width="24" src="' + resURL + '/plugin/qualys-iac-security/icons/correct.png"/>';
+            var resURL = jQuery('#resURL').val();
+            var correct_icon = '<img src="'+ resURL +'/checkmark-circle-outline" plugin-ionicons-api/>';
+            var cancel_icon = '<img src="'+ resURL +'/close-circle-outline" plugin-ionicons-api/>';
             if (jsr.summary.highViolatesCriteria) {
-                $('.high-criteria-icon').html(cancel_icon);
+                jQuery('.high-criteria-icon').html(cancel_icon);
             } else {
-                $('.high-criteria-icon').html(correct_icon);
+                jQuery('.high-criteria-icon').html(correct_icon);
             }
             if (jsr.summary.mediumViolatesCriteria) {
-                $('.medium-criteria-icon').html(cancel_icon);
+                jQuery('.medium-criteria-icon').html(cancel_icon);
             } else {
-                $('.medium-criteria-icon').html(correct_icon);
+                jQuery('.medium-criteria-icon').html(correct_icon);
             }
             if (jsr.summary.lowViolatesCriteria) {
-                $('.low-criteria-icon').html(cancel_icon);
+                jQuery('.low-criteria-icon').html(cancel_icon);
             } else {
-                $('.low-criteria-icon').html(correct_icon);
+                jQuery('.low-criteria-icon').html(correct_icon);
             }
         }
     }

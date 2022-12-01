@@ -1,11 +1,11 @@
 package io.qualys.iac.jenkins;
 
-import com.qualys.iac.commons.model.Util;
-import com.qualys.iac.commons.model.*;
-import com.qualys.iac.commons.service.IQualysService;
-import com.qualys.iac.commons.service.impl.QualysServiceImpl;
-import com.qualys.iac.plugins.validation.UIJenkinsValidation;
-import com.qualys.iac.plugins.validation.UIValidation;
+import io.qualys.iac.commons.model.Util;
+import io.qualys.iac.commons.model.*;
+import io.qualys.iac.commons.service.IQualysService;
+import io.qualys.iac.commons.service.impl.QualysServiceImpl;
+import io.qualys.iac.validation.UIJenkinsValidation;
+import io.qualys.iac.validation.UIValidation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.*;
@@ -42,7 +42,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.kohsuke.stapler.AncestorInPath;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Extension
 public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
@@ -280,8 +279,6 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
         private final UIValidation uIValidation = new UIJenkinsValidation();
-        private String DEFAULT_WORKSPACE_DIR = "";
-
         public String getUUID() {
             return java.util.UUID.randomUUID().toString();
         }
@@ -297,7 +294,14 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
         }
 
         public QualysApiConfiguration[] getIaCServiceEndpoints() {
-            return GlobalConfiguration.all().get(Config.class).getQualysApiConfigurations();
+            if (GlobalConfiguration.all() != null) {
+                Config config = GlobalConfiguration.all().get(Config.class);
+                if (config != null) {
+                    return config.getQualysApiConfigurations();
+                }
+            }
+            QualysApiConfiguration[] qualysApiConfigurations = new QualysApiConfiguration[QualysConstants.DEFAULT_LENGTH];
+            return qualysApiConfigurations;
         }
 
         public FormValidation doCheckIaCServiceEndpoint(@QueryParameter String IaCServiceEndpoint, @QueryParameter String isPageLoad) {
