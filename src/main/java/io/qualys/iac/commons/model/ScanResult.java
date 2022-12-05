@@ -27,10 +27,13 @@ public class ScanResult {
     @Setter
     private String scanName;
 
-
     @Getter
     @Setter
     private boolean isAppliedBuildSetting;
+
+    @Getter
+    @Setter
+    private boolean isFailedResultsOnly;
 
     @Getter
     @Setter

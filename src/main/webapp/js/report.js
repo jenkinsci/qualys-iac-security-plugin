@@ -29,8 +29,18 @@ function drawChart() {
 
     chart.draw(data, options);
 }
-function createColElement(colData){
+function CreateSpanElement(cssClass, text){
+    var spanElement = document.createElement("span");
+    spanElement.setAttribute('class', cssClass);
+    spanElement.innerText = text;
+    return spanElement.outerHTML;
+}
+function createColElement(colData, resultType, isFailedResultsOnly, applyColor){
     var rowElement = document.createElement("tr");
+    if(applyColor){
+        var cssClass = (resultType === 'FAILED' && !isFailedResultsOnly ? 'bg-danger-custom' : 'bg-normal')
+        rowElement.setAttribute('class', cssClass);
+    }
     for(var i = 0; i < colData.length;i++){
         var colElement = document.createElement("td");
         colElement.innerHTML=colData[i];
@@ -49,22 +59,24 @@ jQuery(document).ready(function () {
     } else {
         jQuery('.no-data-qualys-iac-pie-chart').removeClass('d-none');
     }
-    tmp = '';
-
+    jQuery('.icon-success path').attr('fill','#10dc60')
+    jQuery('.icon-danger path').attr('fill','#ff8aac')
+    var isFailedResultsOnly = (jsr.isFailedResultsOnly == undefined || jsr.isFailedResultsOnly == null ? false : jsr.isFailedResultsOnly);
     jQuery.each(jsr.lstterraFormChecks, function (i, item) {
         var controlId = item.controlId;
         var controlName = item.controlName;
         var criticality = item.criticality;
         var filePath = item.filePath ? item.filePath : '';
         var resource = item.resource;
-        var resultType = item.resultType === 'FAILED' ? '<span class="text-danger fw-bold">FAILED</span>' : '<span class="text-success fw-bold">PASSED</span>';
-        jQuery('.iac-posture-rows').append(createColElement([controlId, controlName, criticality, resultType, filePath, resource]));
+        var resultType = item.resultType === 'FAILED' ? CreateSpanElement('text-danger fw-bold', 'FAILED') : CreateSpanElement('text-success fw-bold', 'PASSED');
+        var rowElement = createColElement([controlId, controlName, criticality, resultType, filePath, resource], item.resultType, isFailedResultsOnly, true);
+        jQuery('.iac-posture-rows').append(rowElement);
     });
 
     jQuery.each(jsr.lstremediation, function (i, item) {
         var controlId = item.controlId;
         var remediation = item.remediation;
-        jQuery('.iac-remediation-rows').append(createColElement([controlId, remediation]));
+        jQuery('.iac-remediation-rows').append(createColElement([controlId, remediation], undefined, undefined, false));
     });
 
     if (!jsr.lstterraFormChecks || jsr.lstterraFormChecks.length === 0) {
@@ -77,19 +89,26 @@ jQuery(document).ready(function () {
         jQuery('.no-data-remediation-tab').removeClass('d-none');
     }
 
-    tmp = '';
     jQuery.each(jsr.lstParsingErrors, function (i, item) {
         var checkType = item.checkType;
         var parsingErrorLocation = item.parsingErrorLocation;
-        jQuery('.iac-remediation-rows').append(createColElement([checkType, parsingErrorLocation]));
+        jQuery('.parsing-error-rows').append(createColElement([checkType, parsingErrorLocation], undefined, undefined, false));
     });
-    if (tmp.trim().length > 0) {
-        jQuery('.parsing-error-rows').append(tmp);
+    if (jQuery('.parsing-error-rows').length > 0) {
         jQuery('.parsing-error-tab').removeClass('d-none');
     }
     if (!jsr.lstParsingErrors || jsr.lstParsingErrors.length === 0) {
         jQuery('.parsing-error-tab').addClass('d-none');
     }
+    else {
+        jQuery('.parsing-error-tab').removeClass('d-none');
+    }
+    //Apply css classes to first and second column
+    jQuery('#iacposture tbody td:nth-child(1)').attr('class','col-2');
+    jQuery('#iacposture tbody td:nth-child(2)').attr('class','col-3');
+    jQuery('#remediation tbody td:nth-child(1)').attr('class','col-1');
+    jQuery('#remediation tbody td:nth-child(2)').attr('class','col-3');
+    jQuery('#iacposture,#remediation,#parsing-error').DataTable();
     if (jsr.summary) {
         jQuery('#scan-id').text(jsr.scanId);
         jQuery('#scan-name').text(jsr.scanName);
@@ -100,8 +119,8 @@ jQuery(document).ready(function () {
 
         if (jsr.appliedBuildSetting && jsr.lstterraFormChecks && jsr.lstterraFormChecks.length > 0) {
             var resURL = jQuery('#resURL').val();
-            var correct_icon = '<img src="'+ resURL +'/checkmark-circle-outline" plugin-ionicons-api/>';
-            var cancel_icon = '<img src="'+ resURL +'/close-circle-outline" plugin-ionicons-api/>';
+            var cancel_icon = jQuery('.icon-danger').prop("outerHTML");
+            var correct_icon = jQuery('.icon-success').prop("outerHTML");
             if (jsr.summary.highViolatesCriteria) {
                 jQuery('.high-criteria-icon').html(cancel_icon);
             } else {
@@ -117,6 +136,9 @@ jQuery(document).ready(function () {
             } else {
                 jQuery('.low-criteria-icon').html(correct_icon);
             }
+        }
+        if (jsr.appliedBuildSetting == false) {
+          jQuery('#buildFailureCount').addClass('d-none');
         }
     }
 });

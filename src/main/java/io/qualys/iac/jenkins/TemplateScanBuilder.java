@@ -225,7 +225,7 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
                                 try {
                                     FailedStats failedStatsFromBuildConfiguration = new FailedStats(getHigh(), getMedium(), getLow());
                                     String scanResult = iQualysService.getScanResult(scanUuid, qbc);
-                                    String fileName = "Qualys_IaC_Scan_Reponse_" + env.get("BUILD_NUMBER").toString() + ".json";
+                                    String fileName = "ScanResult"+ File.separator+ env.get("BUILD_NUMBER").toString() + File.separator +"Qualys_IaC_Scan_Reponse_" + env.get("BUILD_NUMBER").toString() + ".json";
                                     String filePath = DEFAULT_WORKSPACE_DIR + fileName;
                                     FileUtils.writeStringToFile(new File(filePath), scanResult, Charset.forName("UTF-8"));
                                     listener.getLogger().println("Qualys IaC Scan Json Response saved  at location : " + filePath);
@@ -233,6 +233,7 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
                                     if (scanResultObj.getSummary() != null) {
                                         scanResultObj.setScanId(scanUuid);
                                         scanResultObj.setScanName(qbc.getScanName());
+                                        scanResultObj.setFailedResultsOnly(getFailedResultsOnly());
                                         scanResultObj.setAppliedBuildSetting(isBuildFailureSettings());
                                         scanResultObj.setQualysJsonResponse(scanResult);
                                         scanResultObj.setScanStatus(scanStatus);
