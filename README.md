@@ -77,7 +77,7 @@ To deploy a plugin,
 
 [![App Screenshot-1](images/Image1.PNG)](images/Image1.PNG)
 
-- Navigate to Available plugin in the plugin manager and search Qualys IaC Scan plugin.
+- Navigate to Available plugin in the plugin manager and search Qualys IaC Security plugin.
 
 [![App Screenshot-3](images/Image3.PNG)](images/Image3.PNG)
 
@@ -87,7 +87,7 @@ To deploy a plugin,
 
 [![App Screenshot-4](images/Image4.PNG)](images/Image4.PNG)
 
-- Scroll down till you see the Qualys IaC Scan plugin and click Add.
+- Scroll down till you see the Qualys IaC Scan then click on Add.
 
 [![App Screenshot-5](images/Image5.PNG)](images/Image5.PNG)
 
