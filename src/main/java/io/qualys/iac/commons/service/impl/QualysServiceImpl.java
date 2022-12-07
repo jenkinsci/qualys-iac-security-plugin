@@ -69,11 +69,8 @@ public class QualysServiceImpl implements IQualysService {
                 if (isValidPath(folderPath)) {
                     if (folderPath.endsWith(ZIP_EXTENSION)) {
                         String extractFolderPath = util.getRandomZipPath();
-                        boolean isFolderPathCreated = new File(extractFolderPath).mkdirs();
-                        if(isFolderPathCreated) {
-                            util.extractFolder(folderPath, extractFolderPath);
-                            lstPaths.add(Paths.get(extractFolderPath));
-                        }
+                        util.extractFolder(folderPath, extractFolderPath);
+                        lstPaths.add(Paths.get(extractFolderPath));
                     } else {
                         lstPaths.add(Paths.get(new File(folderPath).getCanonicalPath()));
                     }

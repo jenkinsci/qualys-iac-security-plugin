@@ -306,6 +306,7 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
         }
 
         public FormValidation doCheckIaCServiceEndpoint(@QueryParameter String IaCServiceEndpoint, @QueryParameter String isPageLoad) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return JenkinsUtil.showErrorIfExists(uIValidation.validateIaCServiceEndpoint(IaCServiceEndpoint, "-1"), isPageLoad);
         }
 

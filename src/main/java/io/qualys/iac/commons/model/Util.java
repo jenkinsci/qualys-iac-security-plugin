@@ -23,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -66,15 +67,17 @@ public final class Util {
     public String getTempDirectory() {
         return System.getProperty("java.io.tmpdir");
     }
+
     public String appendTimestampToFile(String fileName, String extension) {
         return fileName.concat("_").concat(Instant.now().getEpochSecond() + "").concat(extension);
     }
+
     public String getRandomZipPath() {
         String uuid = UUID.randomUUID().toString();
         return util.concatPath(getTempDirectory(), uuid);
     }
 
-    public void extractFolder(String zipFile, String extractFolder) {
+    public void extractFolder(String zipFile, String extractFolderPath) {
         //String extractFolderPath = util.getRandomZipPath()
         //extractFolder have unique file path e.g %temp%/{GUID}/ in windows and in linux like /tmp/{GUID}/ so zip slip will not occur
         try {
@@ -82,10 +85,12 @@ public final class Util {
             File file = new File(zipFile);
 
             ZipFile zip = new ZipFile(file);
-            String newPath = extractFolder;
-
-            boolean isFolderDirectoryCreated = new File(newPath).mkdir();
-            if (isFolderDirectoryCreated) {
+            File extractFolderDir = new File(extractFolderPath);
+            boolean isDirectoryCreated = false;
+            if (!extractFolderDir.exists()) {
+                isDirectoryCreated = extractFolderDir.mkdirs();
+            }
+            if (isDirectoryCreated) {
                 Enumeration zipFileEntries = zip.entries();
 
                 // Process each entry
@@ -93,8 +98,12 @@ public final class Util {
                     // grab a zip file entry
                     ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
                     String currentEntry = entry.getName();
-
-                    File destFile = new File(newPath, currentEntry);
+                    String canonicalDestinationDirPath = extractFolderDir.getCanonicalPath();
+                    File destFile = new File(extractFolderPath, currentEntry);
+                    String canonicalDestinationFile = destFile.getCanonicalPath();
+                    if (!canonicalDestinationFile.startsWith(canonicalDestinationDirPath + File.separator)) {
+                        throw new ArchiveException("Entry is outside of the target dir: " + entry.getName());
+                    }
                     //destFile = new File(newPath, destFile.getName());
                     File destinationParent = destFile.getParentFile();
 
@@ -126,6 +135,8 @@ public final class Util {
             zip.close();
         } catch (IOException ex) {
             Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ArchiveException e) {
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -158,7 +169,7 @@ public final class Util {
 
     public void addFolderToZip(File folder, ZipOutputStream zout, String basePath, Set<String> lstEntries, List<String> lstfiles) throws IOException {
         File[] files = folder.listFiles();
-        if(files != null) {
+        if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     String path = util.concatPath(basePath.concat(file.getName()), EMPTY_BASE_PATH);

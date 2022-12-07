@@ -204,6 +204,7 @@ public class TemplateScanBuildStep extends Step {
         }
 
         public FormValidation doCheckScanDirectories(@AncestorInPath Job job, @QueryParameter String isPageLoad, @QueryParameter String scanDirectories) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return JenkinsUtil.showErrorIfExists(uIValidation.validateFolderPaths(scanDirectories, Jenkins.get().getRootDir().getPath() + File.separator + "workspace" + File.separator + job.getDisplayName()), isPageLoad);
         }
 
