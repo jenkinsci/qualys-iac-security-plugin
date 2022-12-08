@@ -306,7 +306,6 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
         }
 
         public FormValidation doCheckIaCServiceEndpoint(@QueryParameter String IaCServiceEndpoint, @QueryParameter String isPageLoad) {
-            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return JenkinsUtil.showErrorIfExists(uIValidation.validateIaCServiceEndpoint(IaCServiceEndpoint, "-1"), isPageLoad);
         }
 
@@ -315,6 +314,7 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
         }
 
         public FormValidation doCheckScanDirectories(@AncestorInPath Job job, @QueryParameter String isPageLoad, @QueryParameter String scanDirectories) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return JenkinsUtil.showErrorIfExists(uIValidation.validateFolderPaths(scanDirectories, Jenkins.get().getRootDir().getPath() + File.separator + "workspace" + File.separator + job.getDisplayName()), isPageLoad);
         }
 
