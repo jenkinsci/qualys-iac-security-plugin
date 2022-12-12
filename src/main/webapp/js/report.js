@@ -29,25 +29,6 @@ function drawChart() {
 
     chart.draw(data, options);
 }
-function CreateSpanElement(cssClass, text){
-    var spanElement = document.createElement("span");
-    spanElement.setAttribute('class', cssClass);
-    spanElement.innerText = text;
-    return spanElement.outerHTML;
-}
-function createColElement(colData, resultType, isFailedResultsOnly, applyColor){
-    var rowElement = document.createElement("tr");
-    if(applyColor){
-        var cssClass = (resultType === 'FAILED' && !isFailedResultsOnly ? 'bg-danger-custom' : 'bg-normal')
-        rowElement.setAttribute('class', cssClass);
-    }
-    for(var i = 0; i < colData.length;i++){
-        var colElement = document.createElement("td");
-        colElement.innerHTML=colData[i];
-        rowElement.appendChild(colElement);
-    }
-    return rowElement;
-}
 jQuery(document).ready(function () {
     if (jsr && jsr.summary.failedStats && !(jsr.summary.failedStats.high === 0 && jsr.summary.failedStats.medium === 0 && jsr.summary.failedStats.low === 0)) {
         google.charts.load('current', {
@@ -59,26 +40,8 @@ jQuery(document).ready(function () {
     } else {
         jQuery('.no-data-qualys-iac-pie-chart').removeClass('d-none');
     }
-    jQuery('.icon-success path').attr('fill','#10dc60')
-    jQuery('.icon-danger path').attr('fill','#ff8aac')
-    var isFailedResultsOnly = (jsr.isFailedResultsOnly == undefined || jsr.isFailedResultsOnly == null ? false : jsr.isFailedResultsOnly);
-    jQuery.each(jsr.lstterraFormChecks, function (i, item) {
-        var controlId = item.controlId;
-        var controlName = item.controlName;
-        var criticality = item.criticality;
-        var filePath = item.filePath ? item.filePath : '';
-        var resource = item.resource;
-        var resultType = item.resultType === 'FAILED' ? CreateSpanElement('text-danger fw-bold', 'FAILED') : CreateSpanElement('text-success fw-bold', 'PASSED');
-        var rowElement = createColElement([controlId, controlName, criticality, resultType, filePath, resource], item.resultType, isFailedResultsOnly, true);
-        jQuery('.iac-posture-rows').append(rowElement);
-    });
-
-    jQuery.each(jsr.lstremediation, function (i, item) {
-        var controlId = item.controlId;
-        var remediation = item.remediation;
-        jQuery('.iac-remediation-rows').append(createColElement([controlId, remediation], undefined, undefined, false));
-    });
-
+    jQuery('.icon-success path').attr('fill','#10dc60');
+    jQuery('.icon-danger path').attr('fill','#ff8aac');
     if (!jsr.lstterraFormChecks || jsr.lstterraFormChecks.length === 0) {
         jQuery('.iacposture-tab').addClass('d-none');
         jQuery('.no-data-iacposture-tab').removeClass('d-none');
@@ -89,11 +52,6 @@ jQuery(document).ready(function () {
         jQuery('.no-data-remediation-tab').removeClass('d-none');
     }
 
-    jQuery.each(jsr.lstParsingErrors, function (i, item) {
-        var checkType = item.checkType;
-        var parsingErrorLocation = item.parsingErrorLocation;
-        jQuery('.parsing-error-rows').append(createColElement([checkType, parsingErrorLocation], undefined, undefined, false));
-    });
     if (jQuery('.parsing-error-rows').length > 0) {
         jQuery('.parsing-error-tab').removeClass('d-none');
     }
