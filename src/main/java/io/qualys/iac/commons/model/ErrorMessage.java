@@ -1,4 +1,4 @@
-package com.qualys.iac.commons.model;
+package io.qualys.iac.commons.model;
 
 public class ErrorMessage {
 

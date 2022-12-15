@@ -1,4 +1,4 @@
-package com.qualys.iac.commons.model;
+package io.qualys.iac.commons.model;
 
 import java.util.List;
 import lombok.Getter;
@@ -27,10 +27,13 @@ public class ScanResult {
     @Setter
     private String scanName;
 
-
     @Getter
     @Setter
     private boolean isAppliedBuildSetting;
+
+    @Getter
+    @Setter
+    private boolean isFailedResultsOnly;
 
     @Getter
     @Setter

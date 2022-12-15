@@ -1,7 +1,8 @@
-package com.qualys.iac.commons.model;
+package io.qualys.iac.commons.model;
 
 public class QualysConstants {
 
+    public static final int DEFAULT_LENGTH = 1;
     public static final long CONNECTION_TIMEOUT = 10;
     public final static String KEY_NAME = "name";
     public final static String KEY_FAILED_RESULTS_ONLY = "showOnlyFailedControls";
@@ -36,10 +37,10 @@ public class QualysConstants {
     public static final String OUTPUT_ZIP_NAME = "Qualys_IaC_Scan";
     public static final String EMPTY_BASE_PATH = "";
     public static final String HTTP_POST_FAILED = "http_post_failed";
-    public static String HTTP_POST_FAILED_REASON = "http_post_failed_reason";
-    public static String ZIP_FILE_MAX_SIZE_MESSAGE = "IaC scan files size exceeding 10 MB.";
-    public static String NO_IAC_FILES_MESSAGE = "There are no valid IaC files(.tf,.yml,.yaml,.json,.template) inside IaC scan directories.";
-    public static float ZIP_FILE_MAX_SIZE = 10.00f;
+    public static final String HTTP_POST_FAILED_REASON = "http_post_failed_reason";
+    public static final String ZIP_FILE_MAX_SIZE_MESSAGE = "IaC scan files size exceeding 10 MB.";
+    public static final String NO_IAC_FILES_MESSAGE = "There are no valid IaC files(.tf,.yml,.yaml,.json,.template) inside IaC scan directories.";
+    public static final float ZIP_FILE_MAX_SIZE = 10.00f;
     public static final int MIN_SCAN_RESULTS_INTERVAL = 10;
     public static final String DEFAULT_SCAN_RESULTS_INTERVAL = "30";
     public static final String DEFAULT_JOB_COMPLETION_TIME = "10";

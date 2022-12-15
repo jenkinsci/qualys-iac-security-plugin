@@ -3,16 +3,17 @@ package io.qualys.iac.jenkins;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.qualys.iac.commons.model.ScanResult;
-import hudson.model.TaskListener;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Run;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import hudson.model.TaskListener;
+import io.qualys.iac.commons.model.ScanResult;
 import jenkins.model.RunAction2;
 import lombok.Setter;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class ScanResultAction implements RunAction2 {
 
@@ -21,7 +22,9 @@ public class ScanResultAction implements RunAction2 {
     @DataBoundSetter
     @Setter
     public ScanResult scanResult;
-
+    public ScanResult getScanResultObj(){
+        return scanResult;
+    }
     public String getScanResult() throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         return ow.writeValueAsString(scanResult);
@@ -62,5 +65,9 @@ public class ScanResultAction implements RunAction2 {
 
     public Run getRun() {
         return run;
+    }
+
+    public String getUUID() {
+        return java.util.UUID.randomUUID().toString();
     }
 }

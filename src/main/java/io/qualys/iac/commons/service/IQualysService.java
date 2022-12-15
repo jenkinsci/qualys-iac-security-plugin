@@ -1,8 +1,8 @@
-package com.qualys.iac.commons.service;
+package io.qualys.iac.commons.service;
 
-import com.qualys.iac.commons.model.FailedStats;
-import com.qualys.iac.commons.model.QualysBuildConfiguration;
-import com.qualys.iac.commons.model.ScanResult;
+import io.qualys.iac.commons.model.FailedStats;
+import io.qualys.iac.commons.model.QualysBuildConfiguration;
+import io.qualys.iac.commons.model.ScanResult;
 import java.util.Map;
 
 public interface IQualysService {

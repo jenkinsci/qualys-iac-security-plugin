@@ -1,7 +1,7 @@
-package com.qualys.iac.plugins.validation;
+package io.qualys.iac.validation;
 
-import com.qualys.iac.commons.model.ErrorMessage;
-import com.qualys.iac.commons.model.FieldValidation;
+import io.qualys.iac.commons.model.ErrorMessage;
+import io.qualys.iac.commons.model.FieldValidation;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,7 +50,7 @@ public abstract class UIValidation {
     public static final String SCAN_NAME_REGEX = "^[A-Za-z0-9-_ ]*$";
     public static final String KEY_IS_ALL_FOLDER_PATH_EXISTS = "IsAllFolderPathExists";
     public static final String KEY_INVALID_FOLDER_PATHS = "InvalidFolderPaths";
-    public static final String[] PLATFORM_URLS = new String[]{"https://qualysguard.qualys.com",
+    private static final String[] PLATFORM_URLS = new String[]{"https://qualysguard.qualys.com",
         "https://qualysguard.qg2.apps.qualys.com",
         "https://qualysguard.qg3.apps.qualys.com",
         "https://qualysguard.qg4.apps.qualys.com",

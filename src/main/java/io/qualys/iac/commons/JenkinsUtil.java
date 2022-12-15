@@ -1,6 +1,6 @@
 package io.qualys.iac.commons;
 
-import com.qualys.iac.commons.model.FieldValidation;
+import io.qualys.iac.commons.model.FieldValidation;
 import hudson.util.FormValidation;
 
 public final class JenkinsUtil {
