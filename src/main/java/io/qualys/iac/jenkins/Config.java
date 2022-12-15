@@ -1,12 +1,12 @@
 package io.qualys.iac.jenkins;
 
-import com.qualys.iac.commons.model.QualysBuildConfiguration;
+import io.qualys.iac.commons.model.QualysBuildConfiguration;
 import hudson.CopyOnWrite;
 import hudson.Extension;
 import hudson.util.FormValidation;
-import com.qualys.iac.commons.service.impl.QualysServiceImpl;
-import com.qualys.iac.plugins.validation.UIJenkinsValidation;
-import com.qualys.iac.plugins.validation.UIValidation;
+import io.qualys.iac.commons.service.impl.QualysServiceImpl;
+import io.qualys.iac.validation.UIJenkinsValidation;
+import io.qualys.iac.validation.UIValidation;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
@@ -27,6 +27,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.verb.POST;
 
 @Extension
 @SuppressWarnings("UUF_UNUSED_FIELD")
@@ -52,7 +53,7 @@ public class Config extends GlobalConfiguration {
     }
 
     public QualysApiConfiguration[] getQualysApiConfigurations() {
-        return qualysApiConfigurations;
+        return qualysApiConfigurations.clone();
     }
 
     public void setQualysApiConfigurations(List<QualysApiConfiguration> qac) {
@@ -102,6 +103,7 @@ public class Config extends GlobalConfiguration {
         return FormValidation.ok();
     }
 
+    @POST
     public FormValidation doTestConnection(
             @QueryParameter(value = "qualysPlatformURL") String qualysPlatformURL,
             @QueryParameter(value = "qualysUserName") String qualysUserName,
@@ -128,18 +130,5 @@ public class Config extends GlobalConfiguration {
 
     public String getUUID() {
         return java.util.UUID.randomUUID().toString();
-    }
-
-    @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-
-        public String getUUID() {
-            return java.util.UUID.randomUUID().toString();
-        }
-
-        @Override
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-            return true;
-        }
     }
 }
