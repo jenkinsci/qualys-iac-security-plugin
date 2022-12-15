@@ -62,7 +62,16 @@ trigger, the pipeline job must contain a Jenkins file.
 - Ensure that you have a valid Qualys CloudView Security Assessment app subscription.
 
 ## Let us see the quick workflow:
-
+=======
+Configure the Plugin
+Configure Git Repositories
+Configure Pipeline Job
+##  View Scan Output
+Qualys laC Security Integration with Jenkins
+Scanning lac Templates at Jenkins
+##  Configure the Plugin
+Before running a scan, we have to install the IaC plugin on your Jenkins console.
+To deploy a plugin,
 - Configure the Plugin
 - Configure System
 - Run IaC Scan
@@ -88,6 +97,8 @@ To deploy a plugin,
 [![App Screenshot-4](images/Image4.PNG)](images/Image4.PNG)
 
 - Scroll down till you see the Qualys IaC Scan then click on Add.
+
+## Screenshots
 
 [![App Screenshot-5](images/Image5.PNG)](images/Image5.PNG)
 
