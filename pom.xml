@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.46</version>
+        <version>4.52</version>
         <relativePath/>
     </parent>
     <groupId>io.jenkins.plugins</groupId>
@@ -37,7 +37,7 @@
         </dependencies>
     </dependencyManagement>
     <properties>
-        <jenkins.version>2.361</jenkins.version>
+        <jenkins.version>2.361.4</jenkins.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
@@ -117,6 +117,12 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+    <scm>
+        <connection>scm:git:ssh://github.com/jenkinsci/qualys-iac-security-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/qualys-iac-security-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/qualys-iac-security-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
     <organization>
         <name>Qualys Inc.</name>
         <url>https://www.qualys.com/</url>
