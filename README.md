@@ -39,8 +39,8 @@ you with a pipeline job and options that you can configure to run based on vario
 triggers.
 
 You can perform an IaC scan on either of the following:
-- the entire git repository.
-- only the templates that were newly added / updates to the branch.
+- The entire git repository.
+- Only the templates that were newly added / updates to the branch.
 
 The results are generated on the build console that provides you with proactive visibility
 into the security of your laC templates residing in Git repositories.
