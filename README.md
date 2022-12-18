@@ -9,12 +9,11 @@ Qualys laC Security Integration with Jenkins
 
 
 
-In the existing Continuous Integration and Continuous Deployment (CICD) environment,
+In the existing Continuous Integration and Continuous Deployment (CI/CD) environment,
 the security scans are conducted on cloud resources after deployment. As a result, you
 secure your cloud resources post-deployment to respective Cloud accounts.
 
-With an introduction of the Infrastructure as Code (IaC) security feature by Qualys Cloud-
-View, you can now secure your IaC templates before the cloud resources are deployed in
+With an introduction of the Infrastructure as Code (IaC) security feature by Qualys Cloud-View, you can now secure your IaC templates before the cloud resources are deployed in
 your cloud environments. The IaC Security feature will help you shift cloud security and
 compliance posture to the left, allowing evaluation of cloud resources for misconfigura-
 tions much early during the development phase.
@@ -22,7 +21,7 @@ tions much early during the development phase.
 CloudView offers integration with Jenkins to scan and secure your IaC templates using the
 Jenkins pipeline job. It continuously verifies security misconfigurations against CloudView
 controls and displays the misconfigurations for each run. With a continuous visibility of
-the security posture of your laG Templates at Jenkins pipeline you can plan for remedia-
+the security posture of your IaC Templates at Jenkins pipeline you can plan for remedia-
 tion to stay secure post deployment.
 
 For supported templates, other integrations, and features of Cloud laC Security, refer to
@@ -62,13 +61,10 @@ trigger, the pipeline job must contain a Jenkins file.
 - Ensure that you have a valid Qualys CloudView Security Assessment app subscription.
 
 ## Let us see the quick workflow:
-=======
-Configure the Plugin
-Configure Git Repositories
-Configure Pipeline Job
-##  View Scan Output
-Qualys laC Security Integration with Jenkins
-Scanning lac Templates at Jenkins
+- Configure the Plugin
+- Configure Git Repositories
+- Configure Pipeline Job
+
 ##  Configure the Plugin
 Before running a scan, we have to install the IaC plugin on your Jenkins console.
 To deploy a plugin,
