@@ -26,6 +26,8 @@
     </dependencyManagement>
     <properties>
         <jenkins.version>2.361.4</jenkins.version>
+        <revision>1.0.0</revision>
+        <changelist>-SNAPSHOT</changelist>
     </properties>
     <dependencies>
         <dependency>
