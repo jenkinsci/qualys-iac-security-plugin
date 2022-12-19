@@ -20,7 +20,7 @@
         <version>4.52</version>
         <relativePath/>
     </parent>
-    <groupId>io.jenkins.plugins</groupId>
+    <groupId>com.qualys.plugins</groupId>
     <artifactId>qualys-iac-security</artifactId>
     <version>1.0.0</version>
     <packaging>hpi</packaging>
