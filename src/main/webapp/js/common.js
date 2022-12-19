@@ -9,7 +9,7 @@ function setPageStateValue() {
 }
 function checkAnyValidation() {
     if (document.querySelector('.yui-submit-button button')) {
-        if (document.querySelectorAll('#qualys-configuration-body .validation-error-area--visible').length > 0) {
+        if (document.querySelectorAll('#qualys-configuration-body .validation-error-area--visible .error').length > 0) {
             document.querySelector('.yui-submit-button button').disabled = true;
         } else {
             document.querySelector('.yui-submit-button button').disabled = false;
@@ -26,7 +26,7 @@ function triggerValidationById(id) {
 }
 function scrollToInvalidInput(event) {
     //debugger;
-    if (document.querySelectorAll('#qualys-configuration-body .validation-error-area--visible').length > 0) {
+    if (document.querySelectorAll('#qualys-configuration-body .validation-error-area--visible .error').length > 0) {
         event.preventDefault();
         event.stopPropagation();
         document.getElementById('qualys-configuration-body').scrollIntoView({
