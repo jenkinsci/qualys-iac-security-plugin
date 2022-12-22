@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <div>
-  Qualys Infrastructure-as-Code (IaC) Security plugin for Jenkins enables developers
+  Qualys Infrastructure-as-Code (IaC) Security plugin for Jenkins enables users
   to identify security misconfigurations in their IaC templates.The Qualys IaC Security plugin can be easily integrated with
   freestyle and pipeline projects. Graphic reports are available for IaC scan results.
 </div>
