@@ -28,8 +28,6 @@
         <jenkins.version>2.361.4</jenkins.version>
         <revision>1.0.0</revision>
         <changelist>-SNAPSHOT</changelist>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
