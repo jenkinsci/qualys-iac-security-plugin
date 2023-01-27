@@ -15,8 +15,8 @@ secure your cloud resources post-deployment to respective Cloud accounts.
 
 With an introduction of the Infrastructure as Code (IaC) security feature by Qualys Cloud-View, you can now secure your IaC templates before the cloud resources are deployed in
 your cloud environments. The IaC Security feature will help you shift cloud security and
-compliance posture to the left, allowing evaluation of cloud resources for misconfigura-
-tions much early during the development phase.
+compliance posture to the left, allowing evaluation of cloud resources for misconfigurations
+much early during the development phase.
 
 CloudView offers integration with Jenkins to scan and secure your IaC templates using the
 Jenkins pipeline job. It continuously verifies security misconfigurations against CloudView
