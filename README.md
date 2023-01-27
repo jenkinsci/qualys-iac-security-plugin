@@ -69,10 +69,9 @@ To deploy a plugin,
 
 ## Configure the Plugin
 
-Before running a scan, we have to install the IaC plugin on your Jenkins console.
-To deploy a plugin,
+Before running a scan, we have to install the Qualys IaC Security plugin into Jenkins.
 
-- On the Jenkins console, go to Manage Jenkins > Manage Plugins.
+- Go to Jenkins dashboard, go to Manage Jenkins > Manage Plugins.
 
 [![App Screenshot-1](images/Image1.PNG)](images/Image1.PNG)
 
