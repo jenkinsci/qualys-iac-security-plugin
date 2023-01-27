@@ -80,7 +80,7 @@ To deploy a plugin,
 
 - On the Jenkins console, go to Manage Jenkins > Manage Plugins.
 
-[![App Screenshot-1](images/Image1.PNG)](images/Image1.PNG)
+[![App Screenshot-1][(images/Image1.PNG)](images/Image1.PNG)](https://raw.githubusercontent.com/jenkinsci/qualys-iac-security-plugin/master/images/Image1.PNG)
 
 - Navigate to Available plugin in the plugin manager and search Qualys IaC Security plugin.
 
