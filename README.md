@@ -38,18 +38,20 @@ The Jenkins integration allows you to perform IaC scans using pipeline job. We p
 you with a pipeline job and options that you can configure to run based on various
 triggers.
 
-You can perform an IaC scan on git repository which will get checkout at local/remote machine and performs IaC Scan.
+You can perform an IaC scan on either of the following:
+- the entire git repository.
+- only the templates that were newly added / updates to the branch.
 
 The results are generated on the build console that provides you with proactive visibility
 into the security of your laC templates residing in Git repositories.
 
 ## Pre-requisite
 
-- Ensure that you have a valid jenkins pipeline plugin installed.
-
-- Ensure to configure environment variables used in the pipeline script before you run the
-pipeline job in Jenkins. For more info, refer Configure the Plugin.
-
+- Ensure that you have a valid docker pipeline plugin installed.
+- Ensure to configure environment variables used in the pipeline script before you run the pipeline job in Jenkins. 
+  For more info, refer Configure the Plugin.
+- To auto-trigger a Jenkins pipeline job, ensure that you install a specific Source Code Management (SCM) plugin, e.g., Bitbucket plugin, Bitbucket Server Integration.   For autotrigger, the pipeline job must contain a Jenkins file.
+- Docker must be installed on the Jenkins agent node.
 - Ensure that you have a valid Qualys CloudView Security Assessment app subscription.
 
 ## Let us see the quick workflow:
