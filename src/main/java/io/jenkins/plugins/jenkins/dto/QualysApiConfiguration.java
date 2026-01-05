@@ -9,33 +9,35 @@ import lombok.Setter;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+@Getter
 public class QualysApiConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @DataBoundConstructor
-    public QualysApiConfiguration(String name, String qualysPlatformURL, String qualysUserName, Secret qualysPassword) {
+    public QualysApiConfiguration(String name, String qualysPlatformURL,String authType, String qualysUserName, Secret qualysPassword) {
         this.name = name;
         this.qualysPlatformURL = qualysPlatformURL;
         this.qualysUserName = qualysUserName;
         this.qualysPassword = qualysPassword;
+        this.authType =authType;
     }
     @DataBoundSetter
     @Setter
-    @Getter
     private String name;
     @DataBoundSetter
     @Setter
-    @Getter
     private String qualysPlatformURL;
     @DataBoundSetter
     @Setter
-    @Getter
     private String qualysUserName;
     @DataBoundSetter
     @Setter
-    @Getter
     private Secret qualysPassword;
+
+    private String authType;
+
+    public void setAuthType(String authType) { this.authType = authType; }
 
     public static final QualysApiConfiguration[] all() {
         return Config.get().getQualysApiConfigurations();

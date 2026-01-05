@@ -13,16 +13,32 @@
                             <f:textbox checkMethod="post" value="${inst.qualysPlatformURL}" onmouseover="triggerValidation(event)"/>
                         </f:entry>
 
-                        <f:entry field="qualysUserName" title="Qualys Username" class="required">
-                            <f:textbox checkMethod="post" value="${inst.qualysUserName}" onmouseover="triggerValidation(event)"/>
-                        </f:entry>
+                    <f:entry title="Authentication Type" field="authType">
+                        <select class="auth-type-select" name="_.authType">
+                            <j:choose>
+                                <j:when test="${inst.authType == 'OAuth'}">
+                                    <option value="OAuth" selected="selected">OAuth</option>
+                                    <option value="Basic">Basic</option>
+                                </j:when>
+                                <j:otherwise>
+                                    <option value="Basic" selected="selected">Basic</option>
+                                    <option value="OAuth">OAuth</option>
+                                </j:otherwise>
+                            </j:choose>
+                        </select>
+                    </f:entry>
 
-                        <f:entry field="qualysPassword" title="Qualys Password" class="required">
-                            <f:password checkMethod="post" value="${inst.qualysPassword}" onmouseover="triggerValidation(event)"/>
-                        </f:entry>
-                        <f:validateButton
+
+                    <f:entry field="qualysUserName" title="Qualys Username/Qualys client ID" class="required basic-auth-field">
+                        <f:textbox checkMethod="post" value="${inst.qualysUserName}" onmouseover="triggerValidation(event)"/>
+                    </f:entry>
+
+                    <f:entry field="qualysPassword" title="Qualys Password/Qualys client Secret" class="required basic-auth-field">
+                        <f:password checkMethod="post" value="${inst.qualysPassword}" onmouseover="triggerValidation(event)"/>
+                    </f:entry>
+                    <f:validateButton
                             title="Test Connection" progress="Testing..."
-                            method="testConnection" with="qualysPlatformURL,qualysUserName,qualysPassword"/>
+                            method="testConnection" with="qualysPlatformURL,authType,qualysUserName,qualysPassword"/>
                         <f:entry title="">
                             <div align="right">
                                 <f:repeatableDeleteButton value="Delete" />
