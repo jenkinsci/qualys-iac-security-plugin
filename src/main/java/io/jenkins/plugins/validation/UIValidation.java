@@ -80,11 +80,7 @@ public abstract class UIValidation {
         } else if (!platformURL.contains(HTTP_PROTOCOL) && !platformURL.contains(HTTPS_PROTOCOL)) {
             platformURL = HTTPS_PROTOCOL + platformURL;
         }
-        UrlValidator urlValidator = new UrlValidator();
-        List<String> validPlatformURLS = Arrays.asList(PLATFORM_URLS);
-        if (!urlValidator.isValid(platformURL.toLowerCase()) || !containsCaseInsensitive(platformURL, validPlatformURLS)) {
-            return new FieldValidation(false, new ErrorMessage(ERROR_QUALYS_HOST_NOT_FOUND));
-        }
+
         return new FieldValidation(true, null);
     }
 
