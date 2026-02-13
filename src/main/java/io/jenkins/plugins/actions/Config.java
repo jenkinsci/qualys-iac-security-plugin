@@ -34,18 +34,19 @@ public class Config extends GlobalConfiguration {
     private final UIValidation uIValidation = new UIJenkinsValidation();
     private final transient Supplier<Jenkins> supplyJenkins;
 
-    @CopyOnWrite
+
     private volatile QualysApiConfiguration[] qualysApiConfigurations;
 
     public Config() {
-        this(() -> Optional.ofNullable(Jenkins.getInstanceOrNull()).orElseThrow(() -> new IllegalStateException("Could not get Jenkins instance")));
+        this(Jenkins::get);
     }
-
     public Config(Supplier<Jenkins> supplyJenkins) {
         load();
         this.supplyJenkins = supplyJenkins;
     }
 
+
+    @SuppressWarnings("deprecation")
     public static Config get() {
         return GlobalConfiguration.all().get(Config.class);
     }
@@ -74,6 +75,7 @@ public class Config extends GlobalConfiguration {
         save();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) {
         List<QualysApiConfiguration> list = req.bindJSONToList(QualysApiConfiguration.class, json.get("inst"));
@@ -107,6 +109,7 @@ public class Config extends GlobalConfiguration {
     @POST
     public FormValidation doTestConnection(
             @QueryParameter(value = "qualysPlatformURL") String qualysPlatformURL,
+            @QueryParameter(value = "authType") String authType,
             @QueryParameter(value = "qualysUserName") String qualysUserName,
             @QueryParameter(value = "qualysPassword") String qualysPassword) {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
@@ -115,7 +118,7 @@ public class Config extends GlobalConfiguration {
                 return FormValidation.error("PlatformURL, Username and Password are required fields.");
             }
             QualysServiceImpl qualysService = new QualysServiceImpl();
-            QualysBuildConfiguration qbc = new QualysBuildConfiguration(qualysPlatformURL, qualysUserName, qualysPassword);
+            QualysBuildConfiguration qbc = new QualysBuildConfiguration(qualysPlatformURL,authType, qualysUserName, qualysPassword);
             if (!qualysService.isUserAuthenticated(qbc)) {
                 return FormValidation.error("Unable to authenticate user");
             }
@@ -125,9 +128,6 @@ public class Config extends GlobalConfiguration {
         return FormValidation.ok((String) "Successfully authenticated user with server");
     }
 
-    private String getPluginVersion() {
-        return this.getPlugin().getVersion();
-    }
 
     public String getUUID() {
         return java.util.UUID.randomUUID().toString();

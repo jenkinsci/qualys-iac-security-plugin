@@ -149,8 +149,8 @@ public class TemplateScanBuildStep extends Step {
     }
 
     @Override
-    public TemplateScanBuildStep.DescriptorImpl getDescriptor() {
-        return (TemplateScanBuildStep.DescriptorImpl) super.getDescriptor();
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) super.getDescriptor();
     }
     public QualysApiConfiguration getSelectedIaCServiceEndpoint() {
         QualysApiConfiguration[] qualysApiConfigurations = getDescriptor().getIaCServiceEndpoints();

@@ -98,7 +98,7 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
 
     private static final String FINAL_STATUS = "FINISHED";
     private static final String ERROR_STATUS = "ERROR";
-    private final io.jenkins.plugins.commons.model.Util util = io.jenkins.plugins.commons.model.Util.getInstance();
+    private final Util util = Util.getInstance();
     private final UIValidation uIValidation = new UIJenkinsValidation();
 
     @Override
@@ -196,8 +196,8 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(MessageFormat.format("Build Failure Conditions High={0}, Medium={1}, Low={2}", getHigh(), getMedium(), getLow()));
         listener.getLogger().println(MessageFormat.format("Timeout settings scanResultInterval={0}, jobCompletionTotalTime={1}", getScanResultInterval(), getTotalJobCompletionTime()));
         IQualysService iQualysService = new QualysServiceImpl();
-        QualysBuildConfiguration qbc = new QualysBuildConfiguration(qac.getQualysPlatformURL(), qac.getQualysUserName(), qac.getQualysPassword().getPlainText(), getFailedResultsOnly(), StringUtils.isEmpty(getScanName()) ? getFormattedScanName() : getScanName(), getScanDirectories());
-        io.jenkins.plugins.commons.model.Util util = Util.getInstance();
+        QualysBuildConfiguration qbc = new QualysBuildConfiguration(qac.getQualysPlatformURL(),qac.getAuthType(), qac.getQualysUserName(), qac.getQualysPassword().getPlainText(), getFailedResultsOnly(), StringUtils.isEmpty(getScanName()) ? getFormattedScanName() : getScanName(), getScanDirectories());
+        Util util = Util.getInstance();
         String DEFAULT_WORKSPACE_DIR = util.concatPath(util.concatPath(Jenkins.get().getRootDir().getPath() + File.separator + "workspace", workspace.getName()), QualysConstants.EMPTY_STRING);
         listener.getLogger().println(MessageFormat.format("Workspace directory : {0}", DEFAULT_WORKSPACE_DIR));
         if (qbc.isCredentialsBlank()) {

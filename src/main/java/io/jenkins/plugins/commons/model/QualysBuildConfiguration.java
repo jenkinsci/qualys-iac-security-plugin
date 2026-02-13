@@ -4,6 +4,8 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+
+import io.jenkins.plugins.util.Helper;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +14,15 @@ public class QualysBuildConfiguration {
 
     @Setter
     private String platformURL;
+
+    @Getter
+    @Setter
+    private String gatewayUrl;
+
+    @Getter
+    @Setter
+    private String authType;
+
     @Setter
     @Getter
     private String userName;
@@ -34,18 +45,23 @@ public class QualysBuildConfiguration {
     private static final String QUALYS_RESULT_SUB_URL = "/cloudview-api/rest/v1/iac/scanResult?scanUuid=";
     private static final String QUALYS_SCAN_LIST_WITH_SCAN_UID_SUB_URL = "/cloudview-api/rest/v1/iac/getScanList?filter=scanUuid:";
     private static final String QUALYS_SCAN_LIST_SUB_URL = "/cloudview-api/rest/v1/iac/getScanList";
+    private static final String oAuthEndpoint = "/auth/oidc";
 
     public QualysBuildConfiguration() {
     }
 
-    public QualysBuildConfiguration(String platformURL, String userName, String password) {
+    public QualysBuildConfiguration(String platformURL, String authType, String userName, String password) {
         this.platformURL = platformURL;
+        this.gatewayUrl =Helper.getGatewayUrl(platformURL);
+        this.authType = authType;
         this.userName = userName;
         this.password = password;
     }
 
-    public QualysBuildConfiguration(String platformURL, String userName, String password, boolean isFailedResultsOnly, String scanName, String scanDirectories) {
+    public QualysBuildConfiguration(String platformURL, String authType, String userName, String password, boolean isFailedResultsOnly, String scanName, String scanDirectories) {
         this.platformURL = platformURL;
+        this.gatewayUrl = Helper.getGatewayUrl(platformURL);
+        this.authType = authType;
         this.userName = userName;
         this.password = password;
         this.isFailedResultsOnly = isFailedResultsOnly;
@@ -61,24 +77,34 @@ public class QualysBuildConfiguration {
         return Arrays.asList(getScanDirectories().split(COMMA_SEPARATOR));
     }
 
-    public String getBasicAuthToken() {
-        return "Basic " + Base64.getEncoder().encodeToString((this.userName + ":" + this.password).getBytes(Charset.forName("UTF-8")));
-    }
+
 
     public String getPostScanURL() {
-        return this.getPlatformURL() + QUALYS_SCAN_SUB_URL;
+        return getURLPrefix() + QUALYS_SCAN_SUB_URL;
     }
 
     public String getScanResultURL(String scanUuid) {
-        return this.getPlatformURL() + QUALYS_RESULT_SUB_URL + scanUuid;
+        return getURLPrefix() + QUALYS_RESULT_SUB_URL + scanUuid;
     }
 
     public String getScanStatusURL(String scanUuid) {
-        return this.getPlatformURL() + QUALYS_SCAN_LIST_WITH_SCAN_UID_SUB_URL + scanUuid;
+        return this.getURLPrefix() + QUALYS_SCAN_LIST_WITH_SCAN_UID_SUB_URL + scanUuid;
+    }
+
+    public String getOauthEndPointUrl() {
+        return oAuthEndpoint;
     }
 
     public String getAuthenticationURL() {
-        return this.getPlatformURL() + QUALYS_SCAN_LIST_SUB_URL;
+        return this.getURLPrefix() + QUALYS_SCAN_LIST_SUB_URL;
+    }
+
+    protected String getURLPrefix() {
+
+        if (String.valueOf(this.getAuthType()).equalsIgnoreCase("OAUTH"))
+            return this.getGatewayUrl();
+        else
+            return this.getPlatformURL();
     }
 
     public String correctURL(String url) {

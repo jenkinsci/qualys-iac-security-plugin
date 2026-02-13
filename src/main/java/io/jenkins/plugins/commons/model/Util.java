@@ -7,14 +7,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
+
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -23,9 +25,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+
+
+import javax.servlet.http.HttpServletResponse;
+
+
 
 /**
  * This is class provides functions related to extract zip and zip folder. It
@@ -48,10 +56,50 @@ public final class Util {
         return util;
     }
 
+    public String getBasicAuthToken(String userName, String password) {
+        return "Basic " + Base64.getEncoder().encodeToString((userName + ":" + password).getBytes(Charset.forName("UTF-8")));
+    }
+
+    public String getAuthorizationHeader(QualysBuildConfiguration qbc) {
+        if (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH"))
+            return "Bearer " + this.generateJwtTokenUsingClientIdAndClientSecret(qbc);
+        return this.getBasicAuthToken(qbc.getUserName(), qbc.getPassword());
+    }
+
     public HttpRequest.Builder addCommonConfigurationToHttpRequest(QualysBuildConfiguration qbc) {
         return HttpRequest.newBuilder()
-                .setHeader("Authorization", qbc.getBasicAuthToken())
+                .setHeader("Authorization", this.getAuthorizationHeader(qbc))
                 .setHeader("Accept", "application/json");
+    }
+
+    public String generateJwtTokenUsingClientIdAndClientSecret(QualysBuildConfiguration qbc) {
+        String apiUrl = qbc.getGatewayUrl()+qbc.getOauthEndPointUrl();
+        System.out.println("Requesting new auth token using clientId and clientSecret from API Gateway Server:" + apiUrl);
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(apiUrl))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("clientId", qbc.getUserName())
+                    .header("clientSecret", qbc.getPassword())
+                    .header("X-Requested-With", "Qualys")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.noBody())   // empty body
+                    .build();
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == HttpServletResponse.SC_OK) {
+                System.out.println("Successfully received auth token from API Gateway Server.");
+                return response.body().toString();
+            } else
+                System.out.println("Error while generating JWT token.");
+        } catch (IOException e) {
+            System.out.println("Error while generating JWT token " + e.getMessage());
+        } catch (InterruptedException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        return "";
     }
 
     public HttpClient.Builder addCommonConfigurationToHttpClient(long connectionTimeout) {
