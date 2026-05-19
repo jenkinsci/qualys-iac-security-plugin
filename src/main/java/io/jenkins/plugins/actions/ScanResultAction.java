@@ -21,7 +21,7 @@ public class ScanResultAction implements RunAction2 {
 
     @DataBoundSetter
     @Setter
-    public ScanResult scanResult;
+    private ScanResult scanResult;
     public ScanResult getScanResultObj(){
         return scanResult;
     }

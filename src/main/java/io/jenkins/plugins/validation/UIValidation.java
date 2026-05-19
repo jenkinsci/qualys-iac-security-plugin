@@ -72,15 +72,6 @@ public abstract class UIValidation {
             return new FieldValidation(false, new ErrorMessage(ERROR_EMPTY_PLATFORM_URL));
 
         }
-        if (platformURL.endsWith(FORWARD_SLASH_CHARACTER) || platformURL.endsWith(BACKWARD_SLASH_CHARACTER)) {
-            platformURL = platformURL.substring(0, platformURL.length() - 1);
-        }
-        if (platformURL.contains(HTTP_PROTOCOL)) {
-            platformURL = platformURL.replace(HTTP_PROTOCOL, HTTPS_PROTOCOL);
-        } else if (!platformURL.contains(HTTP_PROTOCOL) && !platformURL.contains(HTTPS_PROTOCOL)) {
-            platformURL = HTTPS_PROTOCOL + platformURL;
-        }
-
         return new FieldValidation(true, null);
     }
 
