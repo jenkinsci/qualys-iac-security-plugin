@@ -19,7 +19,7 @@ import java.io.File;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;

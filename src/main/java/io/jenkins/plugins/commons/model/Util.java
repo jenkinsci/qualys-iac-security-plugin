@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -27,8 +29,10 @@ import java.util.zip.ZipOutputStream;
 
 
 import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 
 import javax.servlet.http.HttpServletResponse;
@@ -61,9 +65,29 @@ public final class Util {
     }
 
     public String getAuthorizationHeader(QualysBuildConfiguration qbc) {
-        if (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH"))
-            return "Bearer " + this.generateJwtTokenUsingClientIdAndClientSecret(qbc);
+        if (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OIDC")) {
+            String cached = qbc.getCachedToken();
+            if (StringUtils.isNotBlank(cached)) {
+                return "Bearer " + cached;
+            }
+            String token = this.getOidcAccessToken(qbc);
+            qbc.setCachedToken(token);
+            return "Bearer " + token;
+        }
+        if (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH")) {
+            String cached = qbc.getCachedToken();
+            if (StringUtils.isNotBlank(cached)) {
+                return "Bearer " + cached;
+            }
+            String token = this.generateJwtTokenUsingClientIdAndClientSecret(qbc);
+            qbc.setCachedToken(token);
+            return "Bearer " + token;
+        }
         return this.getBasicAuthToken(qbc.getUserName(), qbc.getPassword());
+    }
+
+    public void clearCachedToken(QualysBuildConfiguration qbc) {
+        qbc.setCachedToken(null);
     }
 
     public HttpRequest.Builder addCommonConfigurationToHttpRequest(QualysBuildConfiguration qbc) {
@@ -74,9 +98,8 @@ public final class Util {
 
     public String generateJwtTokenUsingClientIdAndClientSecret(QualysBuildConfiguration qbc) {
         String apiUrl = qbc.getGatewayUrl()+qbc.getOauthEndPointUrl();
-        System.out.println("Requesting new auth token using clientId and clientSecret from API Gateway Server:" + apiUrl);
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT).build();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(apiUrl))
@@ -90,16 +113,73 @@ public final class Util {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == HttpServletResponse.SC_OK) {
-                System.out.println("Successfully received auth token from API Gateway Server.");
                 return response.body().toString();
-            } else
-                System.out.println("Error while generating JWT token.");
+            } else {
+                throw new RuntimeException("Error while generating OAuth token. HTTP status: " + response.statusCode() + ". Response: " + StringUtils.defaultString(response.body()));
+            }
         } catch (IOException e) {
-            System.out.println("Error while generating JWT token " + e.getMessage());
+            throw new RuntimeException("Error while generating OAuth token: " + e.getMessage(), e);
         } catch (InterruptedException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        return "";
+    }
+
+    private String getOidcAccessToken(QualysBuildConfiguration qbc) {
+        String tokenUrl = qbc.getTokenUrl();
+        if (StringUtils.isBlank(tokenUrl)) {
+            return "";
+        }
+
+        try {
+            HttpClient client = addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT).build();
+
+            String form = buildOidcClientCredentialsForm(qbc);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(tokenUrl))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(form))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != HttpServletResponse.SC_OK) {
+                throw new RuntimeException("Error while generating access token. HTTP status: " + response.statusCode() + ". Response: " + StringUtils.defaultString(response.body()));
+            }
+
+            JSONObject json = new JSONObject(StringUtils.defaultString(response.body()).trim());
+            String accessToken = json.optString("access_token", "");
+            if (StringUtils.isBlank(accessToken)) {
+                throw new RuntimeException("Token response did not include access_token.");
+            }
+            return accessToken;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error while generating access token: " + e.getMessage(), e);
+        }
+    }
+
+    private String buildOidcClientCredentialsForm(QualysBuildConfiguration qbc) throws UnsupportedEncodingException {
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("grant_type", "client_credentials");
+        params.put("client_id", StringUtils.defaultString(qbc.getUserName()));
+        params.put("client_secret", StringUtils.defaultString(qbc.getPassword()));
+        if (StringUtils.isNotBlank(qbc.getScope())) {
+            params.put("scope", qbc.getScope());
+        }
+        if (StringUtils.isNotBlank(qbc.getAudience())) {
+            params.put("audience", qbc.getAudience());
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            sb.append("=");
+            sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+        return sb.toString();
     }
 
     public HttpClient.Builder addCommonConfigurationToHttpClient(long connectionTimeout) {
@@ -183,8 +263,6 @@ public final class Util {
             zip.close();
         } catch (IOException ex) {
             Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ArchiveException e) {
-            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 

@@ -30,8 +30,8 @@ public class QualysServiceImpl implements IQualysService {
     private final Util util = Util.getInstance();
 
     @Override
-    public boolean isUserAuthenticated(QualysBuildConfiguration qbc) {
-        HttpResponse<Void> response;
+    public boolean isUserAuthenticated(QualysBuildConfiguration qbc) throws Exception {
+        HttpResponse<String> response;
         try {
             HttpRequest request = util.addCommonConfigurationToHttpRequest(qbc)
                     .uri(new URI(qbc.getAuthenticationURL()))
@@ -39,12 +39,35 @@ public class QualysServiceImpl implements IQualysService {
                     .build();
             response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
                     .build()
-                    .send(request, HttpResponse.BodyHandlers.discarding());
-            return (response.statusCode() != HttpServletResponse.SC_UNAUTHORIZED);
+                    .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            
+            // Retry on 401 for token expiration
+            if (response.statusCode() == HttpServletResponse.SC_UNAUTHORIZED && 
+                (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OIDC") || 
+                 String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH"))) {
+                Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.INFO, 
+                    "Received 401 response, retrying with fresh token...");
+                util.clearCachedToken(qbc);
+                request = util.addCommonConfigurationToHttpRequest(qbc)
+                        .uri(new URI(qbc.getAuthenticationURL()))
+                        .GET()
+                        .build();
+                response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
+                        .build()
+                        .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            }
+            
+            if (response.statusCode() == HttpServletResponse.SC_UNAUTHORIZED) {
+                String body = response.body();
+                throw new Exception("Authentication failed. HTTP status 401. Response: " + StringUtils.defaultString(body));
+            }
+
+            Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.INFO,
+                "Authentication successful for auth type: {0}", qbc.getAuthType());
+            return true;
         } catch (IOException | InterruptedException | URISyntaxException ex) {
-            Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            throw new Exception("Authentication request failed: " + ex.getMessage(), ex);
         }
-        return false;
     }
 
     public static boolean isValidPath(String folderPath) {
@@ -130,14 +153,74 @@ public class QualysServiceImpl implements IQualysService {
             response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
                     .build()
                     .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            
+            // Retry on 401 for token expiration
+            if (response.statusCode() == HttpServletResponse.SC_UNAUTHORIZED && 
+                (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OIDC") || 
+                 String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH"))) {
+                Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.INFO, 
+                    "Received 401 response on scan submission, retrying with fresh token...");
+                util.clearCachedToken(qbc);
+                Pipe retryPipe = Pipe.open();
+                new Thread(() -> {
+                    try ( OutputStream outputStream = Channels.newOutputStream(retryPipe.sink())) {
+                        httpEntity.writeTo(outputStream);
+                    } catch (IOException iOException) {
+                        Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.SEVERE, null, iOException);
+                    }
+                }).start();
+                request = util.addCommonConfigurationToHttpRequest(qbc)
+                        .uri(new URI(qbc.getPostScanURL()))
+                        .header(QualysConstants.KEY_CONTENT_TYPE, httpEntity.getContentType().getValue())
+                        .POST(HttpRequest.BodyPublishers.ofInputStream(() -> Channels.newInputStream(retryPipe.source())))
+                        .build();
+                response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
+                        .build()
+                        .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            }
             map.put(QualysConstants.HTTP_POST_FAILED, false);
         } catch (IOException | InterruptedException | URISyntaxException ex) {
             map.put(QualysConstants.HTTP_POST_FAILED, true);
             map.put(QualysConstants.HTTP_POST_FAILED_REASON, ex.toString());
             Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (!Boolean.getBoolean(map.get(QualysConstants.HTTP_POST_FAILED).toString())) {
-            map.put(QualysConstants.KEY_SCAN_UUID, new JSONObject(response.body()).get(QualysConstants.KEY_SCAN_UUID).toString());
+
+        if (map.get(QualysConstants.HTTP_POST_FAILED) != null
+                && !Boolean.parseBoolean(map.get(QualysConstants.HTTP_POST_FAILED).toString())) {
+            if (response == null) {
+                map.put(QualysConstants.HTTP_POST_FAILED, true);
+                map.put(QualysConstants.HTTP_POST_FAILED_REASON, "No response received from Qualys scan API.");
+                return map;
+            }
+
+            int status = response.statusCode();
+            String body = response.body();
+
+            if (status < 200 || status >= 300) {
+                String reason = "Scan launch failed. HTTP " + status + ". Response: " + StringUtils.defaultString(body);
+                Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.SEVERE, reason);
+                map.put(QualysConstants.HTTP_POST_FAILED, true);
+                map.put(QualysConstants.HTTP_POST_FAILED_REASON, reason);
+                return map;
+            }
+
+            try {
+                JSONObject json = new JSONObject(StringUtils.defaultString(body).trim());
+                String scanUuid = StringUtils.trimToEmpty(json.optString(QualysConstants.KEY_SCAN_UUID, ""));
+                if (StringUtils.isBlank(scanUuid)) {
+                    String reason = "Scan launch failed. Missing scanUuid in response. Response: " + StringUtils.defaultString(body);
+                    Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.SEVERE, reason);
+                    map.put(QualysConstants.HTTP_POST_FAILED, true);
+                    map.put(QualysConstants.HTTP_POST_FAILED_REASON, reason);
+                    return map;
+                }
+                map.put(QualysConstants.KEY_SCAN_UUID, scanUuid);
+            } catch (Exception e) {
+                String reason = "Scan launch failed. Unable to parse response: " + StringUtils.defaultString(body);
+                Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.SEVERE, reason, e);
+                map.put(QualysConstants.HTTP_POST_FAILED, true);
+                map.put(QualysConstants.HTTP_POST_FAILED_REASON, reason);
+            }
         }
         return map;
     }
@@ -236,13 +319,32 @@ public class QualysServiceImpl implements IQualysService {
             response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
                     .build()
                     .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            
+            // Retry on 401 for token expiration
+            if (response.statusCode() == HttpServletResponse.SC_UNAUTHORIZED && 
+                (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OIDC") || 
+                 String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH"))) {
+                Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.INFO, 
+                    "Received 401 response on scan status check, retrying with fresh token...");
+                util.clearCachedToken(qbc);
+                request = util.addCommonConfigurationToHttpRequest(qbc)
+                        .uri(new URI(qbc.getScanStatusURL(scanUuid)))
+                        .GET()
+                        .build();
+                response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
+                        .build()
+                        .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            }
+            
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new RuntimeException("Scan status check failed. HTTP " + response.statusCode() + ". Response: " + StringUtils.defaultString(response.body()));
+            }
+            
             return StringUtils.isEmpty(response.body()) ? null : getScanStatus(response.body());
 
         } catch (IOException | InterruptedException | URISyntaxException ex) {
-            Logger.getLogger(QualysServiceImpl.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Scan status check failed: " + ex.getMessage(), ex);
         }
-        return null;
     }
 
     private String getScanStatus(String body) {
@@ -264,13 +366,32 @@ public class QualysServiceImpl implements IQualysService {
             response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
                     .build()
                     .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            
+            // Retry on 401 for token expiration
+            if (response.statusCode() == HttpServletResponse.SC_UNAUTHORIZED && 
+                (String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OIDC") || 
+                 String.valueOf(qbc.getAuthType()).equalsIgnoreCase("OAUTH"))) {
+                Logger.getLogger(QualysServiceImpl.class.getName()).log(Level.INFO, 
+                    "Received 401 response on scan result retrieval, retrying with fresh token...");
+                util.clearCachedToken(qbc);
+                request = util.addCommonConfigurationToHttpRequest(qbc)
+                        .uri(new URI(qbc.getScanResultURL(scanUuid)))
+                        .GET()
+                        .build();
+                response = util.addCommonConfigurationToHttpClient(QualysConstants.CONNECTION_TIMEOUT)
+                        .build()
+                        .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            }
+            
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new RuntimeException("Scan result retrieval failed. HTTP " + response.statusCode() + ". Response: " + StringUtils.defaultString(response.body()));
+            }
+            
             return StringUtils.isEmpty(response.body()) ? null : response.body();
 
         } catch (IOException | InterruptedException | URISyntaxException ex) {
-            Logger.getLogger(QualysServiceImpl.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Scan result retrieval failed: " + ex.getMessage(), ex);
         }
-        return null;
     }
 
     @Override

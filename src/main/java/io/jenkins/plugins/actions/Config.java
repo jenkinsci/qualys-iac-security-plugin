@@ -111,16 +111,28 @@ public class Config extends GlobalConfiguration {
             @QueryParameter(value = "qualysPlatformURL") String qualysPlatformURL,
             @QueryParameter(value = "authType") String authType,
             @QueryParameter(value = "qualysUserName") String qualysUserName,
-            @QueryParameter(value = "qualysPassword") String qualysPassword) {
+            @QueryParameter(value = "qualysPassword") String qualysPassword,
+            @QueryParameter(value = "tokenUrl") String tokenUrl,
+            @QueryParameter(value = "scope") String scope,
+            @QueryParameter(value = "audience") String audience) {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         try {
             if (StringUtils.isEmpty(qualysPlatformURL) || StringUtils.isEmpty(qualysUserName) || StringUtils.isEmpty(qualysPassword)) {
                 return FormValidation.error("PlatformURL, Username and Password are required fields.");
             }
+            if (StringUtils.equalsIgnoreCase(authType, "OIDC") && StringUtils.isEmpty(tokenUrl)) {
+                return FormValidation.error("Token URL is required for IDP authentication.");
+            }
             QualysServiceImpl qualysService = new QualysServiceImpl();
-            QualysBuildConfiguration qbc = new QualysBuildConfiguration(qualysPlatformURL,authType, qualysUserName, qualysPassword);
-            if (!qualysService.isUserAuthenticated(qbc)) {
-                return FormValidation.error("Unable to authenticate user");
+            QualysBuildConfiguration qbc = new QualysBuildConfiguration(qualysPlatformURL, authType, qualysUserName, qualysPassword, tokenUrl, scope, audience);
+            try {
+                qualysService.isUserAuthenticated(qbc);
+            } catch (Exception e) {
+                if (StringUtils.equalsIgnoreCase(authType, "OIDC")) {
+                    return FormValidation.error("Unable to authenticate user. " + e.getMessage());
+                } else {
+                    return FormValidation.error("Unable to authenticate user, Please Check Credentials.");
+                }
             }
         } catch (Exception e) {
             return FormValidation.error((String) ("Client error: " + e.getMessage()));

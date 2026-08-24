@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface IQualysService {
 
-    public boolean isUserAuthenticated(QualysBuildConfiguration qbc);
+    public boolean isUserAuthenticated(QualysBuildConfiguration qbc) throws Exception;
 
     public Map<String, Object> postZip(String workspacePath, QualysBuildConfiguration qbc);
 

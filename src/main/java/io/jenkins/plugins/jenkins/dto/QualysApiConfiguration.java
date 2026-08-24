@@ -6,6 +6,7 @@ import hudson.util.Secret;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -13,6 +14,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 public class QualysApiConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final String DEFAULT_SCOPE = "API.ACCESS";
 
     @DataBoundConstructor
     public QualysApiConfiguration(String name, String qualysPlatformURL,String authType, String qualysUserName, Secret qualysPassword) {
@@ -35,9 +37,25 @@ public class QualysApiConfiguration implements Serializable {
     @Setter
     private Secret qualysPassword;
 
+    @DataBoundSetter
+    @Setter
+    private String tokenUrl;
+
+    @DataBoundSetter
+    @Setter
+    private String scope;
+
+    @DataBoundSetter
+    @Setter
+    private String audience;
+
     private String authType;
 
     public void setAuthType(String authType) { this.authType = authType; }
+
+    public String getScope() {
+        return StringUtils.defaultIfBlank(scope, DEFAULT_SCOPE);
+    }
 
     public static final QualysApiConfiguration[] all() {
         return Config.get().getQualysApiConfigurations();

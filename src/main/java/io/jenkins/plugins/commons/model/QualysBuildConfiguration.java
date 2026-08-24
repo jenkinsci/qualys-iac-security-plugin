@@ -23,6 +23,22 @@ public class QualysBuildConfiguration {
     @Setter
     private String authType;
 
+    @Getter
+    @Setter
+    private String tokenUrl;
+
+    @Getter
+    @Setter
+    private String scope;
+
+    @Getter
+    @Setter
+    private String audience;
+
+    @Getter
+    @Setter
+    private String cachedToken;
+
     @Setter
     @Getter
     private String userName;
@@ -58,12 +74,37 @@ public class QualysBuildConfiguration {
         this.password = password;
     }
 
+    public QualysBuildConfiguration(String platformURL, String authType, String userName, String password, String tokenUrl, String scope, String audience) {
+        this.platformURL = platformURL;
+        this.gatewayUrl = Helper.getGatewayUrl(platformURL);
+        this.authType = authType;
+        this.userName = userName;
+        this.password = password;
+        this.tokenUrl = tokenUrl;
+        this.scope = scope;
+        this.audience = audience;
+    }
+
     public QualysBuildConfiguration(String platformURL, String authType, String userName, String password, boolean isFailedResultsOnly, String scanName, String scanDirectories) {
         this.platformURL = platformURL;
         this.gatewayUrl = Helper.getGatewayUrl(platformURL);
         this.authType = authType;
         this.userName = userName;
         this.password = password;
+        this.isFailedResultsOnly = isFailedResultsOnly;
+        this.scanName = scanName;
+        this.scanDirectories = scanDirectories;
+    }
+
+    public QualysBuildConfiguration(String platformURL, String authType, String userName, String password, String tokenUrl, String scope, String audience, boolean isFailedResultsOnly, String scanName, String scanDirectories) {
+        this.platformURL = platformURL;
+        this.gatewayUrl = Helper.getGatewayUrl(platformURL);
+        this.authType = authType;
+        this.userName = userName;
+        this.password = password;
+        this.tokenUrl = tokenUrl;
+        this.scope = scope;
+        this.audience = audience;
         this.isFailedResultsOnly = isFailedResultsOnly;
         this.scanName = scanName;
         this.scanDirectories = scanDirectories;
@@ -101,7 +142,8 @@ public class QualysBuildConfiguration {
 
     protected String getURLPrefix() {
 
-        if (String.valueOf(this.getAuthType()).equalsIgnoreCase("OAUTH"))
+        if (String.valueOf(this.getAuthType()).equalsIgnoreCase("OAUTH")
+                || String.valueOf(this.getAuthType()).equalsIgnoreCase("OIDC"))
             return this.getGatewayUrl();
         else
             return this.getPlatformURL();
