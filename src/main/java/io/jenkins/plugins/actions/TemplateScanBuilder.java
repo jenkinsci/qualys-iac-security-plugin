@@ -187,6 +187,27 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
             @NonNull TaskListener listener) {
         listener.getLogger().println("Qualys IaC Scan Started");
         QualysApiConfiguration qac = getSelectedIaCServiceEndpoint();
+        
+        String authTypeDescription;
+        String authType = qac.getAuthType();
+        if (authType == null) {
+            authTypeDescription = "Basic Auth";
+        } else {
+            switch (authType) {
+                case "Basic":
+                    authTypeDescription = "Basic Auth";
+                    break;
+                case "OAUTH":
+                    authTypeDescription = "OAuth";
+                    break;
+                case "OIDC":
+                    authTypeDescription = "IDP";
+                    break;
+                default:
+                    authTypeDescription = authType;
+            }
+        }
+        listener.getLogger().println("USING AUTH TYPE: " + authTypeDescription);
         listener.getLogger().println("Configuration name : " + qac.getName());
         listener.getLogger().println("Qualys Platform URL : " + qac.getQualysPlatformURL());
         listener.getLogger().println("Qualys Username : " + qac.getQualysUserName());
@@ -196,20 +217,29 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
         listener.getLogger().println(MessageFormat.format("Build Failure Conditions High={0}, Medium={1}, Low={2}", getHigh(), getMedium(), getLow()));
         listener.getLogger().println(MessageFormat.format("Timeout settings scanResultInterval={0}, jobCompletionTotalTime={1}", getScanResultInterval(), getTotalJobCompletionTime()));
         IQualysService iQualysService = new QualysServiceImpl();
-        QualysBuildConfiguration qbc = new QualysBuildConfiguration(qac.getQualysPlatformURL(),qac.getAuthType(), qac.getQualysUserName(), qac.getQualysPassword().getPlainText(), getFailedResultsOnly(), StringUtils.isEmpty(getScanName()) ? getFormattedScanName() : getScanName(), getScanDirectories());
+        QualysBuildConfiguration qbc = new QualysBuildConfiguration(qac.getQualysPlatformURL(), qac.getAuthType(), qac.getQualysUserName(), qac.getQualysPassword().getPlainText(), qac.getTokenUrl(), qac.getScope(), qac.getAudience(), getFailedResultsOnly(), StringUtils.isEmpty(getScanName()) ? getFormattedScanName() : getScanName(), getScanDirectories());
         Util util = Util.getInstance();
         String DEFAULT_WORKSPACE_DIR = util.concatPath(util.concatPath(Jenkins.get().getRootDir().getPath() + File.separator + "workspace", workspace.getName()), QualysConstants.EMPTY_STRING);
         listener.getLogger().println(MessageFormat.format("Workspace directory : {0}", DEFAULT_WORKSPACE_DIR));
         if (qbc.isCredentialsBlank()) {
             throw new AbortException("Unable to launch Qualys IaC Scan due to platform  url, username or password is blank.");
         }
-        if (!iQualysService.isUserAuthenticated(qbc)) {
-            throw new AbortException("Unable to launch Qualys IaC Scan due to invalid platform  url, username or password.");
+        try {
+            iQualysService.isUserAuthenticated(qbc);
+            listener.getLogger().println("Authentication successful for auth type: " + authTypeDescription);
+        } catch (Exception e) {
+            listener.getLogger().println("Authentication error: " + e.getMessage());
+            throw new AbortException("Unable to launch Qualys IaC Scan: " + e.getMessage());
         }
         if (StringUtils.isBlank(getScanDirectories())) {
             throw new AbortException("Unable to launch Qualys IaC Scan due to scan directories are blank.");
         }
-        Map<String, Object> map = iQualysService.postZip(DEFAULT_WORKSPACE_DIR, qbc);
+        Map<String, Object> map;
+        try {
+            map = iQualysService.postZip(DEFAULT_WORKSPACE_DIR, qbc);
+        } catch (Exception e) {
+            throw new AbortException("Unable to launch Qualys IaC Scan: " + e.getMessage());
+        }
         if (map.get(QualysConstants.HTTP_POST_FAILED) != null && !Boolean.parseBoolean(map.get(QualysConstants.HTTP_POST_FAILED).toString())) {
             String scanUuid = map.get(QualysConstants.KEY_SCAN_UUID).toString();
             listener.getLogger().println("Qualys IaC Scan ID : " + scanUuid);
@@ -259,6 +289,8 @@ public class TemplateScanBuilder extends Builder implements SimpleBuildStep {
                         Thread.sleep(1000 * Integer.parseInt(getScanResultInterval()));
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TemplateScanBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (Exception ex) {
+                        throw new AbortException("Unable to check Qualys IaC scan status: " + ex.getMessage());
                     }
                     Instant end = Instant.now();
                     long durationInMinutes = Duration.between(start, end).toMinutes();

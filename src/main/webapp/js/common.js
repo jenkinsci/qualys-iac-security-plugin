@@ -105,10 +105,56 @@ function assignUniqueId() {
         }
     });
 }
+
+function toggleAuthFields() {
+    let selects = document.querySelectorAll('#qualys-configuration-body .auth-type-select');
+    selects.forEach(function (select, i) {
+        let container = select.closest('.repeated-chunk') || select.closest('tbody') || select.parentElement;
+        let authType = (select.value || '').toLowerCase();
+
+        let oidcFields = (container || document).querySelectorAll('.oidc-auth-field');
+        oidcFields.forEach(function (el) {
+            el.style.display = (authType === 'oidc') ? '' : 'none';
+        });
+
+        let userNameEntry = (container || document).querySelector('div[descriptorid][class*="jenkins-form-item"], .jenkins-form-item');
+        let userNameRow = (container || document).querySelector('[name="_.qualysUserName"]');
+        let passwordRow = (container || document).querySelector('[name="_.qualysPassword"]');
+
+        function setEntryTitle(inputEl, title) {
+            if (!inputEl) return;
+            let entry = inputEl.closest('tr') || inputEl.closest('.jenkins-form-item');
+            if (!entry) return;
+            let label = entry.querySelector('.jenkins-form-label');
+            if (label) {
+                label.textContent = title;
+            }
+        }
+
+        if (authType === 'basic') {
+            setEntryTitle(userNameRow, 'Username');
+            setEntryTitle(passwordRow, 'Password');
+        } else {
+            setEntryTitle(userNameRow, 'Client ID');
+            setEntryTitle(passwordRow, 'Client Secret');
+        }
+    });
+}
+
+function registerAuthTypeChangeHandler() {
+    document.addEventListener('change', function (event) {
+        if (event && event.target && event.target.classList && event.target.classList.contains('auth-type-select')) {
+            toggleAuthFields();
+        }
+    });
+}
+
 setTimeout(registerClickEvent, 500);
+setTimeout(registerAuthTypeChangeHandler, 500);
 setTimeout(setPageStateValue, 500);
 setInterval(assignUniqueId, 200);
 setTimeout(assignAsteriskMark, 200);
 setInterval(checkAnyValidation, 200);
+setInterval(toggleAuthFields, 500);
 
 

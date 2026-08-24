@@ -141,3 +141,7 @@ tab. Lastly, check the Remediation tab to learn how you can resolve the misconfi
 * Added OAuth support(Authentication using client id and client secret)
 * Added support for KSA pod
 * For detailed information on upgrading of Qualys Container Scanning Connector to the 2.0.0.x version, please visit [user guide](https://docs.qualys.com/en/integration/iac/jenkins/jenkins_integration_for_iac_security.htm)
+
+### Release notes for v2.1.0
+* Added IDP (OpenID Connect) authentication support.
+* Improved OAuth/IDP token acquisition error handling and logging.

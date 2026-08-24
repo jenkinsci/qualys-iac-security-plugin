@@ -16,29 +16,48 @@
                     <f:entry title="Authentication Type" field="authType">
                         <select class="auth-type-select" name="_.authType">
                             <j:choose>
-                                <j:when test="${inst.authType == 'OAuth'}">
-                                    <option value="OAuth" selected="selected">OAuth</option>
+                                <j:when test="${inst.authType == 'OIDC'}">
+                                    <option value="OIDC" selected="selected">IDP</option>
+                                    <option value="OAUTH">OAuth</option>
+                                    <option value="Basic">Basic</option>
+                                </j:when>
+                                <j:when test="${inst.authType == 'OAUTH'}">
+                                    <option value="OAUTH" selected="selected">OAuth</option>
+                                    <option value="OIDC">IDP</option>
                                     <option value="Basic">Basic</option>
                                 </j:when>
                                 <j:otherwise>
                                     <option value="Basic" selected="selected">Basic</option>
-                                    <option value="OAuth">OAuth</option>
+                                    <option value="OAUTH">OAuth</option>
+                                    <option value="OIDC">IDP</option>
                                 </j:otherwise>
                             </j:choose>
                         </select>
                     </f:entry>
 
 
-                    <f:entry field="qualysUserName" title="Qualys Username/Qualys client ID" class="required basic-auth-field">
+                    <f:entry field="qualysUserName" title="Username" class="required basic-auth-field">
                         <f:textbox checkMethod="post" value="${inst.qualysUserName}" onmouseover="triggerValidation(event)"/>
                     </f:entry>
 
-                    <f:entry field="qualysPassword" title="Qualys Password/Qualys client Secret" class="required basic-auth-field">
+                    <f:entry field="qualysPassword" title="Password" class="required basic-auth-field">
                         <f:password checkMethod="post" value="${inst.qualysPassword}" onmouseover="triggerValidation(event)"/>
+                    </f:entry>
+
+                    <f:entry field="tokenUrl" title="Token URL" class="oidc-auth-field">
+                        <f:textbox checkMethod="post" value="${inst.tokenUrl}" onmouseover="triggerValidation(event)"/>
+                    </f:entry>
+
+                    <f:entry field="scope" title="Scope" class="oidc-auth-field">
+                        <f:textbox checkMethod="post" value="${inst.scope}" onmouseover="triggerValidation(event)"/>
+                    </f:entry>
+
+                    <f:entry field="audience" title="Audience" class="oidc-auth-field">
+                        <f:textbox checkMethod="post" value="${inst.audience}" onmouseover="triggerValidation(event)"/>
                     </f:entry>
                     <f:validateButton
                             title="Test Connection" progress="Testing..."
-                            method="testConnection" with="qualysPlatformURL,authType,qualysUserName,qualysPassword"/>
+                            method="testConnection" with="qualysPlatformURL,authType,qualysUserName,qualysPassword,tokenUrl,scope,audience"/>
                         <f:entry title="">
                             <div align="right">
                                 <f:repeatableDeleteButton value="Delete" />

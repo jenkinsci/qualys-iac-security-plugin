@@ -1,40 +1,19 @@
 var jsr = JSON.parse(document.getElementById('jsonScanResult').value);
 function drawChart() {
-    var data = google.visualization.arrayToDataTable([
-        ['Severity', 'Count'],
-        ['High (' + jsr.summary.failedStats.high + ')', jsr.summary.failedStats.high],
-        ['Medium (' + jsr.summary.failedStats.medium + ')', jsr.summary.failedStats.medium],
-        ['Low (' + jsr.summary.failedStats.low + ')', jsr.summary.failedStats.low]
-    ]);
-
+    var data = [
+        {label: 'High (' + jsr.summary.failedStats.high + ')', value: jsr.summary.failedStats.high, color: '#dc3912'},
+        {label: 'Medium (' + jsr.summary.failedStats.medium + ')', value: jsr.summary.failedStats.medium, color: '#ff9900'},
+        {label: 'Low (' + jsr.summary.failedStats.low + ')', value: jsr.summary.failedStats.low, color: '#366eea'}
+    ];
     var options = {
         title: 'Qualys IaC Scan Failed Report',
-        pieHole: 0.4,
-        pieSliceText: 'value',
-        slices: {
-            0: {
-                color: '#dc3912'
-            },
-            1: {
-                color: '#ff9900'
-            },
-            2: {
-                color: '#366eea'
-            }
-        },
-        'chartArea': {'width': '100%', 'height': '80%'},
+        pieHole: 0.4
     };
-
-    var chart = new google.visualization.PieChart(document.getElementById('qualysIaCScanPieChart'));
-
-    chart.draw(data, options);
+    drawIacPieChart('qualysIaCScanPieChart', options.title, data, options);
 }
 jQuery(document).ready(function () {
     if (jsr && jsr.summary.failedStats && !(jsr.summary.failedStats.high === 0 && jsr.summary.failedStats.medium === 0 && jsr.summary.failedStats.low === 0)) {
-        google.charts.load('current', {
-            'packages': ['corechart']
-        });
-        google.charts.setOnLoadCallback(drawChart);
+        drawChart();
         jQuery('#qualysIaCScanPieChart').removeClass('d-none');
         jQuery('.pie-chart-col').removeClass('d-none');
     } else {
